@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "jsx": "preserve",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    // "composite": true,
+    // "baseUrl": "./"
+    "rootDir": "../"
+  },
+  "include": ["./src/**/*", "../src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
