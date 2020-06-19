@@ -1,5 +1,5 @@
 import * as React from "react";
-import produce, { Draft } from "immer";
+import { produce, Draft } from "immer";
 
 import { useThunkReducer } from "./useThunkReducer";
 import { LeafsToType } from "./types";

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ValidationError, Schema } from "yup";
+import type { ValidationError, Schema } from "yup";
 
 import { get, set } from "lodash-es";
 
@@ -134,7 +134,11 @@ export const useForm = <FormValues extends Record<string, unknown>>(
         | ((touched: TouchedState<FormValues>) => undefined | boolean)
     ) => {
       if (typeof name === "string") {
-        return get(getTouched(), name) as undefined | boolean;
+        return get(
+          getTouched() as TouchedState<FormValues>,
+          name,
+          undefined
+        ) as boolean | undefined;
       }
 
       if (typeof name === "function") {

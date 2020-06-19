@@ -1,5 +1,5 @@
 import { useThunkReducer } from "./useThunkReducer";
-import produce, { Draft } from "immer";
+import { produce, Draft } from "immer";
 import type { LeafsToType } from "./types";
 
 export type ErrorState<T> = LeafsToType<T, string>;

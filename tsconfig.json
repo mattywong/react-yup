@@ -1,15 +1,16 @@
 {
-  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "dist",
-    "jsx": "preserve",
+    "jsx": "react",
+    "noImplicitAny": true,
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "composite": true,
-    "rootDir": "./",
-    "baseUrl": "src"
+    "moduleResolution": "node",
+    "module": "ES6",
+    "target": "ES6",
+    "lib": ["DOM", "ES6"]
   },
-  "include": ["src/**/*", "examples/src/**/*"],
+  "include": ["src/**/*", "examples/**/*"],
   "exclude": ["node_modules", "dist"]
 }
