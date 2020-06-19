@@ -158,7 +158,9 @@ export const useForm = <FormValues extends Record<string, unknown>>(
   }, [setErrors]);
 
   const validateForm = React.useMemo(() => {
-    track("validateForm");
+    if (process.env.NODE_ENV !== "production") {
+      track("validateForm");
+    }
 
     return (options?: ValidateFormOptions) => {
       const { touch = true } = options || {};
@@ -210,7 +212,10 @@ export const useForm = <FormValues extends Record<string, unknown>>(
   }, [getValues, setErrors, setTouched, validationSchema]);
 
   const setValue: SetValue = React.useMemo(() => {
-    track("setValue");
+    if (process.env.NODE_ENV !== "production") {
+      track("setValue");
+    }
+
     return (name, value, shouldValidate) => {
       setValues((dispatch) => {
         dispatch({
@@ -319,7 +324,10 @@ export const useForm = <FormValues extends Record<string, unknown>>(
   );
 
   const field = React.useMemo(() => {
-    track("field");
+    if (process.env.NODE_ENV !== "production") {
+      track("field");
+    }
+
     return {
       onBlur: handleFieldOnBlur,
       onChange: handleFieldOnChange,
@@ -327,7 +335,9 @@ export const useForm = <FormValues extends Record<string, unknown>>(
   }, [handleFieldOnBlur, handleFieldOnChange]);
 
   const createSubmitHandler: CreateSubmitHandler<FormValues> = React.useMemo(() => {
-    track("createSubmitHandler");
+    if (process.env.NODE_ENV !== "production") {
+      track("createSubmitHandler");
+    }
 
     return (onSuccess, onError?) => (event) => {
       event.preventDefault();
@@ -362,7 +372,9 @@ export const useForm = <FormValues extends Record<string, unknown>>(
   }, [validateForm, submitFocusError, getValues]);
 
   const formBag: FormBagContext<FormValues> = React.useMemo(() => {
-    track("formBag");
+    if (process.env.NODE_ENV !== "production") {
+      track("formBag");
+    }
 
     return {
       createSubmitHandler,
@@ -396,7 +408,9 @@ export const useForm = <FormValues extends Record<string, unknown>>(
   ]);
 
   const FormProvider = React.useMemo(() => {
-    track("FormProvider");
+    if (process.env.NODE_ENV !== "production") {
+      track("FormProvider");
+    }
 
     return ({ children }: { children: React.ReactNode }) => {
       return (

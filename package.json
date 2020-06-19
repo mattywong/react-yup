@@ -10,7 +10,9 @@
     "prebuild": "rimraf ./dist",
     "build": "webpack",
     "postbuild": "dts-bundle-generator -o dist/index.d.ts src/index.ts",
-    "start": "webpack-dev-server --mode development --config examples/webpack.config.js"
+    "start": "webpack-dev-server --mode development --config examples/webpack.config.js",
+    "pretypedoc": "rimraf ./docs",
+    "typedoc": "typedoc --out docs src"
   },
   "peerDependencies": {
     "react": ">= 16",
@@ -42,6 +44,7 @@
     "react-router-dom": "^5.2.0",
     "rimraf": "^3.0.2",
     "terser-webpack-plugin": "^3.0.6",
+    "typedoc": "^0.17.7",
     "typescript": "^3.9.5",
     "webpack": "^4.43.0",
     "webpack-bundle-analyzer": "^3.8.0",
