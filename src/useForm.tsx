@@ -26,8 +26,12 @@ type CreateSubmitHandler<FormValues> = (
 ) => (event: React.FormEvent<HTMLFormElement>) => void;
 
 type Field = {
-  onBlur: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onBlur: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
+  onChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
 };
 
 type GetState<T, Y> = (name: string | ((state: T) => Y)) => Y;
@@ -253,7 +257,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
   }, [setValues, validateForm]);
 
   const handleFieldOnBlur = React.useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name } = e.target;
 
       setTouched({
@@ -271,10 +275,12 @@ export const useForm = <FormValues extends Record<string, unknown>>(
   );
 
   const handleFieldOnChange = React.useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { name, type, value, checked } = e.target;
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { name, type, value } = e.target;
+      console.dir(e.target);
       switch (type) {
-        case "checkbox":
+        case "checkbox": {
+          const { checked } = e.target as HTMLInputElement;
           setValues((dispatch, getState) => {
             dispatch({
               type: "values/update",
@@ -289,6 +295,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
           });
 
           break;
+        }
         case "email":
         case "color":
         case "date":
@@ -304,6 +311,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
         case "number":
         case "range":
         case "text":
+        case "textarea":
         default:
           setValues((dispatch, getState) => {
             dispatch({
