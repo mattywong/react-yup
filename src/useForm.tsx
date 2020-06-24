@@ -277,7 +277,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
   const handleFieldOnChange = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name, type, value } = e.target;
-      console.dir(e.target);
+
       switch (type) {
         case "checkbox": {
           const { checked } = e.target as HTMLInputElement;
