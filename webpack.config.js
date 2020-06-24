@@ -12,7 +12,7 @@ const config = {
     path: path.resolve(__dirname, "dist"),
     filename: "[name].js",
     libraryTarget: "umd",
-    library: "MyLib",
+    library: "EdukaForm",
     globalObject: "this",
   },
   devtool: "source-map",
