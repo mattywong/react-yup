@@ -1,4 +1,4 @@
-import { produce } from "immer";
+import { produce, Draft } from "immer";
 
 import { useThunkReducer } from "./useThunkReducer";
 
@@ -8,7 +8,7 @@ export type ValueState<FormValues> = {
 
 type ValuesActions<FormValues> = {
   type: "values/update";
-  payload: (values: ValueState<FormValues>) => void;
+  payload: (values: Draft<ValueState<FormValues>>) => void;
 };
 
 interface UseValuesHookProps<FormValues> {

@@ -44,7 +44,7 @@ type SetValue = (
 ) => void;
 
 type SetValues<FormValues> = (
-  callback: (values: ValueState<FormValues>) => void,
+  callback: (values: Draft<ValueState<FormValues>>) => void,
   shouldValidate?: boolean
 ) => void;
 
@@ -246,7 +246,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
 
   const setValuesProxy = React.useMemo(() => {
     return (
-      callback: (values: ValueState<FormValues>) => void,
+      callback: (values: Draft<ValueState<FormValues>>) => void,
       shouldValidate?: boolean
     ) => {
       setValues({

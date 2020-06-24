@@ -43,11 +43,10 @@ const createTouchedReducer = <FormValues>() => {
 export const useTouched = <FormValues>({
   defaultTouched = {} as TouchedState<FormValues>,
 }: UseTouchedHookProps<FormValues>) => {
-  const reducer = React.useMemo(() => {
-    return createTouchedReducer<FormValues>();
-  }, []);
-
-  const [getTouched, setTouched] = useThunkReducer(reducer, defaultTouched);
+  const [getTouched, setTouched] = useThunkReducer(
+    createTouchedReducer(),
+    defaultTouched
+  );
 
   return {
     getTouched,
