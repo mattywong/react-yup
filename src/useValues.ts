@@ -20,7 +20,7 @@ const createValuesReducer = <FormValues>() => {
     switch (action.type) {
       case "values/update": {
         return produce(state, (draft) => {
-          return action.payload(draft);
+          action.payload(draft);
         });
       }
       default:
