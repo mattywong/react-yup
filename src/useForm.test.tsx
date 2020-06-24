@@ -14,7 +14,51 @@ test("useForm hook doesn't crash", () => {
   expect(result.error).toBe(undefined);
 });
 
-describe("useForm value setters", () => {
+describe("validation errors", () => {
+  test("yup integration working and errors successfully show", async () => {
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useForm<Yup.InferType<typeof SCHEMA>>({
+        validationSchema: SCHEMA,
+      })
+    );
+
+    expect(result.current.errors.firstName).toBe(undefined);
+
+    act(() => {
+      result.current.validateForm().catch(() => {});
+    });
+
+    await waitForNextUpdate();
+
+    expect(result.current.errors.firstName).toBe("firstName must be defined");
+  });
+
+  test("resetErrors() works correctly", async () => {
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useForm<Yup.InferType<typeof SCHEMA>>({
+        validationSchema: SCHEMA,
+      })
+    );
+
+    expect(result.current.errors.firstName).toBe(undefined);
+
+    act(() => {
+      result.current.validateForm().catch(() => {});
+    });
+
+    await waitForNextUpdate();
+
+    expect(result.current.errors.firstName).toBe("firstName must be defined");
+
+    act(() => {
+      result.current.resetErrors();
+    });
+
+    expect(result.current.errors.firstName).toBe(undefined);
+  });
+});
+
+describe("useValues", () => {
   test("useForm().setValues works correctly ", () => {
     const { result } = renderHook(() =>
       useForm<Yup.InferType<typeof SCHEMA>>({
@@ -22,7 +66,6 @@ describe("useForm value setters", () => {
       })
     );
 
-    /* setValues test */
     act(() => {
       result.current.setValues((v) => (v.firstName = "joe biggs"));
     });
@@ -37,12 +80,41 @@ describe("useForm value setters", () => {
       })
     );
 
-    /* setValues test */
     act(() => {
       result.current.setValue("firstName", "clive biggs");
     });
 
     expect(result.current.values.firstName).toBe("clive biggs");
+  });
+
+  test("useForm().getValues works correctly ", () => {
+    const { result } = renderHook(() =>
+      useForm<Yup.InferType<typeof SCHEMA>>({
+        validationSchema: SCHEMA,
+        defaultValues: {
+          firstName: "joe",
+        },
+      })
+    );
+
+    expect(result.current.getValues()).toEqual({
+      firstName: "joe",
+    });
+  });
+
+  test("useForm().getValue works correctly ", () => {
+    const { result } = renderHook(() =>
+      useForm<Yup.InferType<typeof SCHEMA>>({
+        validationSchema: SCHEMA,
+        defaultValues: {
+          firstName: "joe",
+          lastName: "biggs",
+        },
+      })
+    );
+
+    expect(result.current.getValue("firstName")).toBe("joe");
+    expect(result.current.getValue((v) => v.lastName)).toBe("biggs");
   });
 });
 
@@ -56,7 +128,6 @@ describe("useForm touched setters", () => {
 
     expect(result.current.touched.firstName).toBe(undefined);
 
-    /* setValues test */
     act(() => {
       result.current.setTouched((v) => (v.firstName = true));
     });
