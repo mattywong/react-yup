@@ -9,6 +9,7 @@ import { useErrors, ErrorState } from "./useErrors";
 
 import { track } from "./util/tracker";
 import { focusFirstError } from "./util/focusFirstError";
+import { Draft } from "immer";
 
 interface UseFormHookOptions<FormValues extends Record<string, unknown>> {
   defaultValues?: ValueState<FormValues>;
@@ -47,6 +48,10 @@ type SetValues<FormValues> = (
   shouldValidate?: boolean
 ) => void;
 
+type SetTouched<FormValues> = (
+  callback: (touched: Draft<TouchedState<FormValues>>) => void
+) => void;
+
 type IsTouched<FormValues> = (
   name: string | ((touched: TouchedState<FormValues>) => undefined | boolean)
 ) => undefined | boolean;
@@ -65,6 +70,7 @@ interface FormBagContext<FormValues> {
   getTouched: () => TouchedState<FormValues>;
   isTouched: IsTouched<FormValues>;
   setSubmitting: (isSubmitting: boolean) => void;
+  setTouched: SetTouched<FormValues>;
   setValue: SetValue;
   setValues: SetValues<FormValues>;
   resetErrors: () => void;
@@ -256,6 +262,15 @@ export const useForm = <FormValues extends Record<string, unknown>>(
     };
   }, [setValues, validateForm]);
 
+  const setTouchedProxy = React.useMemo(() => {
+    return (callback: (touched: Draft<TouchedState<FormValues>>) => void) => {
+      setTouched({
+        type: "touched/update",
+        payload: callback,
+      });
+    };
+  }, [setTouched]);
+
   const handleFieldOnBlur = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name } = e.target;
@@ -395,6 +410,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
       isTouched,
       resetErrors,
       setSubmitting,
+      setTouched: setTouchedProxy,
       setValue,
       setValues: setValuesProxy,
       validateForm,
@@ -410,6 +426,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
     isTouched,
     resetErrors,
     setSubmitting,
+    setTouchedProxy,
     setValue,
     setValuesProxy,
     validateForm,
