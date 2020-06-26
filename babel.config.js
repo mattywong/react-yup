@@ -3,6 +3,9 @@ const defaultConfig = {
     [
       "@babel/preset-env",
       {
+        targets: {
+          browsers: "last 2 versions, ie 10-11",
+        },
         modules: false,
       },
     ],

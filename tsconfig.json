@@ -11,6 +11,6 @@
     "target": "ES6",
     "lib": ["DOM", "ES6"]
   },
-  "include": ["src/**/*", "examples/**/*"],
+  "include": ["src/**/*", "examples/src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

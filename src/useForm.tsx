@@ -60,6 +60,12 @@ interface ValidateFormOptions {
   touch?: boolean;
 }
 
+type ValidateFormResult<FormValues> = Promise<{
+  values: ValueState<FormValues>;
+  errors?: ErrorState<FormValues>;
+  yupErrors?: ValidationError;
+}>;
+
 interface FormBagContext<FormValues> {
   createSubmitHandler: CreateSubmitHandler<FormValues>;
   field: Field;
@@ -74,7 +80,9 @@ interface FormBagContext<FormValues> {
   setValue: SetValue;
   setValues: SetValues<FormValues>;
   resetErrors: () => void;
-  validateForm: (options?: ValidateFormOptions) => Promise<FormValues>;
+  validateForm: (
+    options?: ValidateFormOptions
+  ) => ValidateFormResult<FormValues>;
 }
 
 interface UseFormHookResult<FormValues> extends FormBagContext<FormValues> {
@@ -174,15 +182,19 @@ export const useForm = <FormValues extends Record<string, unknown>>(
 
     return (options?: ValidateFormOptions) => {
       const { touch = true } = options || {};
-      return new Promise<FormValues>((resolve, reject) => {
+      return new Promise<{
+        values: FormValues;
+        errors?: ErrorState<FormValues>;
+        yupErrors?: ValidationError;
+      }>((resolve, reject) => {
         if (!validationSchema) {
           setErrors({
             type: "errors/reset",
           });
-          return resolve(getValues() as FormValues);
+          return resolve({ values: getValues() as FormValues });
         }
 
-        return validationSchema
+        validationSchema
           .validate(getValues(), {
             abortEarly: false,
           })
@@ -190,17 +202,21 @@ export const useForm = <FormValues extends Record<string, unknown>>(
             setErrors({
               type: "errors/reset",
             });
-            return resolve(values as FormValues);
+            resolve({ values: values as FormValues });
           })
           .catch((errors: ValidationError) => {
-            const nextErrors = errors.inner.reduce((acc, cur) => {
+            if (errors.name !== "ValidationError") {
+              reject("Unhandled validation error");
+            }
+
+            const formErrors = errors.inner.reduce((acc, cur) => {
               set(acc, cur.path, cur.message);
               return acc;
             }, {} as ErrorState<FormValues>);
 
             setErrors({
               type: "errors/update/all",
-              payload: nextErrors,
+              payload: formErrors,
             });
 
             if (touch) {
@@ -215,7 +231,11 @@ export const useForm = <FormValues extends Record<string, unknown>>(
               });
             }
 
-            reject({ errors: nextErrors, yupErrors: errors });
+            resolve({
+              values: errors.value,
+              errors: formErrors,
+              yupErrors: errors,
+            });
           });
       });
     };
@@ -236,9 +256,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
         });
 
         if (shouldValidate) {
-          validateForm({ touch: false }).catch(() => {
-            // do nothing
-          });
+          validateForm({ touch: false });
         }
       });
     };
@@ -255,9 +273,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
       });
 
       if (shouldValidate) {
-        validateForm({ touch: false }).catch(() => {
-          // do nothing
-        });
+        validateForm({ touch: false });
       }
     };
   }, [setValues, validateForm]);
@@ -282,9 +298,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
         },
       });
 
-      validateForm({ touch: false }).catch(() => {
-        // do nothing
-      });
+      validateForm({ touch: false });
     },
     [setTouched, validateForm]
   );
@@ -304,9 +318,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
               },
             });
 
-            validateForm({ touch: false }).catch(() => {
-              // do nothing
-            });
+            validateForm({ touch: false });
           });
 
           break;
@@ -336,9 +348,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
               },
             });
 
-            validateForm({ touch: false }).catch(() => {
-              // do nothing
-            });
+            validateForm({ touch: false });
           });
           break;
       }
@@ -369,28 +379,23 @@ export const useForm = <FormValues extends Record<string, unknown>>(
 
       setSubmitting(true);
 
-      validateForm()
-        .then(onSuccess)
-        .finally(() => {
+      return validateForm().then(({ values, errors, yupErrors }) => {
+        if (errors) {
           setSubmitting(false);
-        })
-        .catch(
-          ({
-            errors,
-            yupErrors,
-          }: {
-            errors: ErrorState<FormValues>;
-            yupErrors: ValidationError;
-          }) => {
-            if (submitFocusError) {
-              focusFirstError(form, yupErrors);
-            }
 
-            if (onError) {
-              onError(errors, getValues());
-            }
+          if (submitFocusError) {
+            focusFirstError(form, yupErrors);
           }
-        );
+
+          if (onError) {
+            return onError(errors, getValues());
+          }
+
+          return;
+        }
+
+        return onSuccess(values);
+      });
     };
   }, [validateForm, submitFocusError, getValues]);
 

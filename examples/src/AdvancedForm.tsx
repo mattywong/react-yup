@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useHistory } from "react-router-dom";
 import { useForm } from "../../src/index";
 
 import * as Yup from "yup";
@@ -20,6 +21,7 @@ const schema = Yup.object({
 type FormValues = Yup.InferType<typeof schema>;
 
 export const AdvancedForm = () => {
+  const { push } = useHistory();
   const {
     createSubmitHandler,
     field,
@@ -29,6 +31,7 @@ export const AdvancedForm = () => {
     errors,
     touched,
     isSubmitting,
+    setSubmitting,
     setValue,
     setValues,
     getErrors,
@@ -49,12 +52,14 @@ export const AdvancedForm = () => {
   const handleSubmit = React.useMemo(() => {
     return createSubmitHandler((values) => {
       console.log(values);
+      // setSubmitting(false);
 
       // do things async
       return new Promise((res, rej) => {
         setTimeout(res, 3000);
       }).then((d) => {
-        alert("Succes");
+        // alert("Succes");
+        push("/success");
       });
     });
   }, [createSubmitHandler]);
@@ -67,17 +72,18 @@ export const AdvancedForm = () => {
             setValues((v) => {
               v.form = {
                 ...v.form,
-                email: "test.com",
+                email: "hello@test.com",
                 firstName: "test",
                 address: {
                   ...v.form?.address,
                   street: "Changed St",
                 },
+                description: "Hello world",
               };
             }, true);
           }}
         >
-          Update first name
+          Fill form
         </button>
         <button
           onClick={(e) => {
@@ -114,7 +120,7 @@ export const AdvancedForm = () => {
           type="submit"
           disabled={isSubmitting}
         >
-          Submit
+          {isSubmitting ? "Submitting" : "Submit"}
         </button>
       </form>
     </FormProvider>

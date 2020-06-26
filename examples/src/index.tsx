@@ -12,6 +12,7 @@ import {
   Redirect,
   Link,
 } from "react-router-dom";
+import { Success } from "./Success";
 
 const Container: React.FC<{}> = ({ children }) => {
   const [count, setCount] = React.useState(0);
@@ -66,6 +67,9 @@ const App = () => {
           <Container>
             <AdvancedForm />
           </Container>
+        </Route>
+        <Route path="/success">
+          <Success />
         </Route>
         <Redirect to="/basic" />
       </Switch>
