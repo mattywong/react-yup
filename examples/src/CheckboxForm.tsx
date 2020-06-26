@@ -1,12 +1,47 @@
 import * as React from "react";
-import { useForm } from "../../src/index";
+import { useForm, useFormBag } from "../../src/index";
 
 import * as Yup from "yup";
 import { Field } from "./Field";
 
-// interface FormValues {
+interface InputFieldProps
+  extends React.DetailedHTMLProps<
+    React.InputHTMLAttributes<HTMLInputElement>,
+    HTMLInputElement
+  > {
+  label: React.ReactNode;
+}
 
-// }
+const InputField: React.FC<InputFieldProps> = (props) => {
+  const { label, ...rest } = props;
+  const { value, id, name } = rest;
+
+  const { isChecked } = useFormBag();
+
+  return (
+    <div className="form-check">
+      <input
+        className="form-check-input"
+        {...rest}
+        checked={isChecked(name, value)}
+      />
+      <label className="form-check-label" htmlFor={id}>
+        {label}
+      </label>
+    </div>
+  );
+};
+
+const SCHEMA = Yup.object({
+  gender: Yup.array().of(Yup.string()).required(),
+  genderNoArray: Yup.mixed()
+    .when("isArray", {
+      is: (v) => Array.isArray(v),
+      then: Yup.array().of(Yup.string()),
+      otherwise: Yup.string(),
+    })
+    .required(),
+}).defined();
 
 export const CheckboxForm = () => {
   const {
@@ -18,9 +53,9 @@ export const CheckboxForm = () => {
     setValue,
     touched,
     errors,
-  } = useForm<{
-    gender: string;
-  }>({});
+  } = useForm<Yup.InferType<typeof SCHEMA>>({
+    validationSchema: SCHEMA,
+  });
 
   const handleSubmit = React.useMemo(() => {
     return createSubmitHandler((values) => {
@@ -33,53 +68,118 @@ export const CheckboxForm = () => {
       <form onSubmit={handleSubmit}>
         <fieldset className="form-group">
           <div className="row">
-            <legend className="col-form-label col-sm-2 pt-0">Gender</legend>
+            <legend className="col-form-label col-sm-2 pt-0">
+              Gender (gender[])
+            </legend>
             <div className="col-sm-10">
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  type="radio"
-                  name="gender"
+              <div>
+                <InputField
+                  name="gender[]"
+                  type="checkbox"
                   id="male"
                   value="male"
-                  checked={getValue((v) => v.gender) === "male"}
+                  label="Male"
                   {...field}
                 />
-                <label className="form-check-label" htmlFor="male">
-                  Male
-                </label>
-              </div>
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  type="radio"
-                  name="gender"
+                <InputField
+                  name="gender[]"
+                  type="checkbox"
                   id="female"
                   value="female"
-                  checked={getValue("gender") === "female"}
+                  label="Female"
                   {...field}
                 />
-                <label className="form-check-label" htmlFor="female">
-                  Female
-                </label>
-              </div>
-              <div className="form-check">
-                <input
-                  className="form-check-input"
-                  type="radio"
-                  name="gender"
+                <InputField
+                  name="gender[]"
+                  type="checkbox"
                   id="unknown"
                   value="unknown"
-                  checked={getValue("gender") === "unknown"}
+                  label="Prefer not to say"
                   {...field}
                 />
-                <label className="form-check-label" htmlFor="unknown">
-                  Prefer not to say
-                </label>
               </div>
+              {errors.gender && touched.gender && (
+                <div className="invalid-feedback d-block mb-2">
+                  {errors.gender}
+                </div>
+              )}
             </div>
           </div>
         </fieldset>
+        <fieldset className="form-group">
+          <div className="row">
+            <legend className="col-form-label col-sm-2 pt-0">
+              Gender (no array)
+            </legend>
+            <div className="col-sm-10">
+              <div>
+                <InputField
+                  name="genderNoArray"
+                  type="checkbox"
+                  id="genderNoArray.male"
+                  value="male"
+                  label="Male"
+                  {...field}
+                />
+                <InputField
+                  name="genderNoArray"
+                  type="checkbox"
+                  id="genderNoArray.female"
+                  value="female"
+                  label="Female"
+                  {...field}
+                />
+                <InputField
+                  name="genderNoArray"
+                  type="checkbox"
+                  id="genderNoArray.unknown"
+                  value="unknown"
+                  label="Prefer not to say"
+                  {...field}
+                />
+              </div>
+              {errors.genderNoArray && touched.genderNoArray && (
+                <div className="invalid-feedback d-block mb-2">
+                  {errors.genderNoArray}
+                </div>
+              )}
+            </div>
+          </div>
+        </fieldset>
+        <fieldset className="form-group">
+          <div className="row">
+            <legend className="col-form-label col-sm-2 pt-0">
+              Confirm (no value)
+            </legend>
+            <div className="col-sm-10">
+              <InputField
+                name="confirm"
+                type="checkbox"
+                id="confirm"
+                label="Confirm"
+                {...field}
+              />
+            </div>
+          </div>
+        </fieldset>
+        <fieldset className="form-group">
+          <div className="row">
+            <legend className="col-form-label col-sm-2 pt-0">
+              Confirm (with value)
+            </legend>
+            <div className="col-sm-10">
+              <InputField
+                name="confirmWithValue"
+                type="checkbox"
+                id="confirmWithValue"
+                label="Confirm with value"
+                value="Yes"
+                {...field}
+              />
+            </div>
+          </div>
+        </fieldset>
+        <pre>{JSON.stringify(values)}</pre>
         <button className="btn btn-primary" type="submit">
           Submit
         </button>

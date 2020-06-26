@@ -75,6 +75,7 @@ interface FormBagContext<FormValues> {
   getValues: () => ValueState<FormValues>;
   getTouched: () => TouchedState<FormValues>;
   isTouched: IsTouched<FormValues>;
+  isChecked: (name: string, value: any) => boolean;
   setSubmitting: (isSubmitting: boolean) => void;
   setTouched: SetTouched<FormValues>;
   setValue: SetValue;
@@ -168,6 +169,23 @@ export const useForm = <FormValues extends Record<string, unknown>>(
       );
     };
   }, [getTouched]);
+
+  const isChecked = React.useMemo(() => {
+    return (name: string, value?: unknown) => {
+      const chkBoxName = name.endsWith("[]") ? name.slice(0, -2) : name;
+      const curValue = get(getValues(), chkBoxName, false);
+
+      if (Array.isArray(curValue)) {
+        return curValue.includes(value);
+      } else if (typeof curValue === "boolean") {
+        return curValue;
+      } else if (typeof curValue === "string") {
+        return curValue === value;
+      } else {
+        return false;
+      }
+    };
+  }, []);
 
   const resetErrors = React.useCallback(() => {
     setErrors({
@@ -303,6 +321,10 @@ export const useForm = <FormValues extends Record<string, unknown>>(
     [setTouched, validateForm]
   );
 
+  /* 
+    name[] = any[];
+    name = any | any[];
+  */
   const handleFieldOnChange = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name, type, value } = e.target;
@@ -310,11 +332,56 @@ export const useForm = <FormValues extends Record<string, unknown>>(
       switch (type) {
         case "checkbox": {
           const { checked } = e.target as HTMLInputElement;
+
+          const isCheckboxArray = name.endsWith("[]");
+          const chkboxName = isCheckboxArray ? name.slice(0, -2) : name;
+          const curValue: any | any[] = get(getValues(), chkboxName);
+
+          let tempValue: any;
+
+          if (Array.isArray(curValue)) {
+            tempValue = curValue.reduce((acc, cur) => {
+              acc[cur] = true;
+              return acc;
+            }, {});
+
+            tempValue[value] = checked;
+
+            tempValue = Object.entries(tempValue)
+              .filter((n) => n[1])
+              .map((n) => n[0]);
+
+            switch (tempValue.length) {
+              case 0:
+                tempValue = undefined;
+                break;
+              case 1:
+                if (!isCheckboxArray) {
+                  tempValue = tempValue[0];
+                }
+                break;
+              default:
+                break;
+            }
+          } else if (curValue === undefined) {
+            if (isCheckboxArray) {
+              tempValue = [value];
+            } else {
+              tempValue = value === "on" ? true : value;
+            }
+          } else {
+            if (checked) {
+              tempValue = [curValue, value];
+            } else {
+              tempValue = undefined;
+            }
+          }
+
           setValues((dispatch, getState) => {
             dispatch({
               type: "values/update",
               payload: (values) => {
-                set(values, name, checked);
+                set(values, chkboxName, tempValue);
               },
             });
 
@@ -353,7 +420,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
           break;
       }
     },
-    [setValues, validateForm]
+    [setValues, getValues, validateForm]
   );
 
   const field = React.useMemo(() => {
@@ -412,6 +479,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
       getTouched,
       getValue,
       getValues,
+      isChecked,
       isTouched,
       resetErrors,
       setSubmitting,
@@ -428,6 +496,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
     getTouched,
     getValue,
     getValues,
+    isChecked,
     isTouched,
     resetErrors,
     setSubmitting,
