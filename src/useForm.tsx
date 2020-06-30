@@ -28,10 +28,14 @@ type CreateSubmitHandler<FormValues> = (
 
 type Field = {
   onBlur: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => void;
   onChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => void;
 };
 
@@ -326,7 +330,11 @@ export const useForm = <FormValues extends Record<string, unknown>>(
     name = any | any[];
   */
   const handleFieldOnChange = React.useCallback(
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >
+    ) => {
       const { name, type, value } = e.target;
 
       switch (type) {
@@ -390,6 +398,30 @@ export const useForm = <FormValues extends Record<string, unknown>>(
 
           break;
         }
+
+        // select element - multiple
+        case "select-multiple": {
+          const { options } = e.target as HTMLSelectElement;
+          const selectedValues = Array.from(options)
+            .filter((option) => option.selected)
+            .map((option) => option.value);
+
+          setValues((dispatch, getState) => {
+            dispatch({
+              type: "values/update",
+              payload: (values) => {
+                set(values, name, selectedValues);
+              },
+            });
+
+            validateForm({ touch: false });
+          });
+          break;
+        }
+
+        // select element- single -> can use normal input[type=text] handler
+        case "select-one":
+        // input element types
         case "email":
         case "color":
         case "date":

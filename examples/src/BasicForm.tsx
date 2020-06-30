@@ -8,6 +8,8 @@ const schema = Yup.object({
   email: Yup.string().required().email().defined(),
   firstName: Yup.string().required().defined(),
   lastName: Yup.string().required().defined(),
+  experience: Yup.string().required().defined(),
+  colours: Yup.array().of(Yup.string()).required().defined(),
   gender: Yup.mixed().oneOf(["male", "female", "unknown"]).defined(),
 }).defined();
 
@@ -57,6 +59,47 @@ export const BasicForm = () => {
               {errors.lastName}
             </div>
           )}
+        </div>
+        <div className="form-group">
+          <label htmlFor="experience">Experience</label>
+          {errors.experience && touched.experience && (
+            <div className="invalid-feedback d-block mb-2">
+              {errors.experience}
+            </div>
+          )}
+          <select
+            id="experience"
+            name="experience"
+            className="form-control"
+            defaultValue=""
+            {...field}
+          >
+            <option value="" disabled>
+              Select one
+            </option>
+            <option value="0 - 5">0 to 5 years</option>
+            <option value="5 - 10">5 to 10 years</option>
+            <option value="10+ years">10+ years</option>
+          </select>
+        </div>
+        <div className="form-group">
+          <label htmlFor="colours">Colours</label>
+          {errors.colours && touched.colours && (
+            <div className="invalid-feedback d-block mb-2">
+              {errors.colours}
+            </div>
+          )}
+          <select
+            id="colours"
+            name="colours"
+            className="form-control"
+            multiple
+            {...field}
+          >
+            <option value="red">Red</option>
+            <option value="blue">Blue</option>
+            <option value="orange">Orange</option>
+          </select>
         </div>
         <fieldset className="form-group">
           <div className="row">
@@ -114,6 +157,7 @@ export const BasicForm = () => {
           Submit
         </button>
       </form>
+      <pre>{JSON.stringify(values, null, 2)}</pre>
     </FormProvider>
   );
 };
