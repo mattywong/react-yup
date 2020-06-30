@@ -43,39 +43,30 @@ export const Field = <FormValues extends Record<string, unknown>>({
   );
 };
 
-export const FieldCheck = <FormValues extends Record<string, unknown>>({
-  label,
-  id,
-  name,
-  value,
-  ...rest
-}: FieldProps): JSX.Element => {
-  if (!name) {
-    throw Error("No name passed to Field");
-  }
+interface InputFieldProps
+  extends React.DetailedHTMLProps<
+    React.InputHTMLAttributes<HTMLInputElement>,
+    HTMLInputElement
+  > {
+  label: React.ReactNode;
+}
 
-  const { getValue, getError, isTouched, field } = useFormBag<FormValues>();
+export const FieldCheck: React.FC<InputFieldProps> = (props) => {
+  const { label, ...rest } = props;
+  const { value, id, name } = rest;
 
-  const internalValue = getValue(name) || "";
-
-  React.useEffect(() => {
-    track("Field");
-  }, [getValue, getError, isTouched, field]);
+  const { isChecked } = useFormBag();
 
   return (
-    <>
+    <div className="form-check">
       <input
         className="form-check-input"
-        name="form.gender"
-        id={id}
-        value={value}
-        checked={internalValue === value}
-        {...field}
         {...rest}
+        checked={isChecked(name, value)}
       />
       <label className="form-check-label" htmlFor={id}>
         {label}
       </label>
-    </>
+    </div>
   );
 };

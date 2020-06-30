@@ -16,7 +16,7 @@
     "start": "webpack-dev-server --mode development --config examples/webpack.config.js",
     "pretypedoc": "rimraf ./docs",
     "typedoc": "typedoc --out docs src",
-    "generate-types": "dts-bundle-generator -o dist/index.d.ts src/index.ts --no-banner --external-inlines=immer --external-imports=yup",
+    "generate-types": "dts-bundle-generator -o dist/index.d.ts src/index.ts --no-banner --external-imports=yup",
     "test": "jest"
   },
   "peerDependencies": {
@@ -64,7 +64,6 @@
     "yup": "^0.29.1"
   },
   "dependencies": {
-    "immer": "^7.0.0",
     "lodash-es": "^4.17.15"
   },
   "jest": {

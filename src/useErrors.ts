@@ -1,5 +1,4 @@
 import { useThunkReducer } from "./useThunkReducer";
-import { produce, Draft } from "immer";
 import type { LeafsToType } from "./types";
 
 export type ErrorState<T> = LeafsToType<T, string>;
@@ -7,7 +6,7 @@ export type ErrorState<T> = LeafsToType<T, string>;
 type ErrorsActions<FormValues> =
   | {
       type: "errors/update";
-      payload: (errors: Draft<ErrorState<FormValues>>) => void;
+      payload: (errors: ErrorState<FormValues>) => ErrorState<FormValues>;
     }
   | {
       type: "errors/update/all";
@@ -25,9 +24,7 @@ const createErrorsReducer = <FormValues>() => {
   return (state: ErrorState<FormValues>, action: ErrorsActions<FormValues>) => {
     switch (action.type) {
       case "errors/update": {
-        return produce(state, (draft) => {
-          action.payload(draft);
-        });
+        return action.payload(Object.assign({}, state));
       }
       case "errors/update/all": {
         return action.payload;

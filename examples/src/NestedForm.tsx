@@ -63,17 +63,6 @@ export const NestedForm = () => {
     });
   }, [createSubmitHandler]);
 
-  // console.log(getError((e) => e.form?.address?.number));
-
-  // React.useEffect(() => {
-  //   console.log(touched.form?.address?.number);
-  //   console.log(isTouched("form.address.number"));
-  //   console.log(isTouched((t) => t.form?.address?.number));
-
-  //   console.log(getValue((v) => v.form?.address?.number));
-  //   console.log(getValue("form.address.number"));
-  // },[]);
-
   return (
     <FormProvider>
       <div>
@@ -89,6 +78,8 @@ export const NestedForm = () => {
                 ...v.form,
                 firstName: "test",
               };
+
+              return v;
             });
           }}
         >
@@ -101,10 +92,6 @@ export const NestedForm = () => {
         name="shouldValidate"
         type="checkbox"
         {...field}
-        onChange={(e) => {
-          setValue("shouldValidate", e.target.checked);
-        }}
-        checked={values.shouldValidate}
       />
       <form onSubmit={handleSubmit}>
         <Field name="form.email" label="Email Address" type="email" />
@@ -123,6 +110,7 @@ export const NestedForm = () => {
                   value="male"
                   name="form.gender"
                   type="radio"
+                  {...field}
                 />
               </div>
               <div className="form-check">
@@ -132,6 +120,7 @@ export const NestedForm = () => {
                   value="female"
                   name="form.gender"
                   type="radio"
+                  {...field}
                 />
               </div>
               <div className="form-check">
@@ -141,6 +130,7 @@ export const NestedForm = () => {
                   value="unknown"
                   name="form.gender"
                   type="radio"
+                  {...field}
                 />
               </div>
             </div>

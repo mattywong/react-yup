@@ -1,6 +1,3 @@
-import * as React from "react";
-import { produce, Draft } from "immer";
-
 import { useThunkReducer } from "./useThunkReducer";
 import { LeafsToType } from "./types";
 
@@ -9,7 +6,7 @@ export type TouchedState<T> = LeafsToType<T, boolean>;
 type TouchedActions<FormValues> =
   | {
       type: "touched/update";
-      payload: (touched: Draft<TouchedState<FormValues>>) => void;
+      payload: (touched: TouchedState<FormValues>) => TouchedState<FormValues>;
     }
   | {
       type: "touched/update/all";
@@ -27,15 +24,15 @@ const createTouchedReducer = <FormValues>() => {
   ) => {
     switch (action.type) {
       case "touched/update": {
-        return produce(state, (draft) => {
-          action.payload(draft);
-        });
+        return action.payload(Object.assign({}, state));
       }
       case "touched/update/all": {
         return action.payload;
       }
       default:
-        return state;
+        throw Error(
+          `The action type ${(action as any).type} is not recognized`
+        );
     }
   };
 };

@@ -1,5 +1,3 @@
-import { produce, Draft } from "immer";
-
 import { useThunkReducer } from "./useThunkReducer";
 
 export type ValueState<FormValues> = {
@@ -8,7 +6,7 @@ export type ValueState<FormValues> = {
 
 type ValuesActions<FormValues> = {
   type: "values/update";
-  payload: (values: Draft<ValueState<FormValues>>) => void;
+  payload: (values: ValueState<FormValues>) => ValueState<FormValues>;
 };
 
 interface UseValuesHookProps<FormValues> {
@@ -19,9 +17,7 @@ const createValuesReducer = <FormValues>() => {
   return (state: ValueState<FormValues>, action: ValuesActions<FormValues>) => {
     switch (action.type) {
       case "values/update": {
-        return produce(state, (draft) => {
-          action.payload(draft);
-        });
+        return action.payload(Object.assign({}, state));
       }
       default:
         return state;

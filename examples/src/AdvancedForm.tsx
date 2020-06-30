@@ -3,7 +3,7 @@ import { useHistory } from "react-router-dom";
 import { useForm } from "../../src/index";
 
 import * as Yup from "yup";
-import { Field, FieldCheck } from "./Field";
+import { Field } from "./Field";
 
 const schema = Yup.object({
   form: Yup.object({
@@ -80,6 +80,8 @@ export const AdvancedForm = () => {
                 },
                 description: "Hello world",
               };
+
+              return v;
             }, true);
           }}
         >
@@ -113,6 +115,7 @@ export const AdvancedForm = () => {
             rows={3}
             className="form-control"
             {...field}
+            value={values.form?.description}
           />
         </div>
         <button

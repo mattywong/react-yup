@@ -9,7 +9,6 @@ import { useErrors, ErrorState } from "./useErrors";
 
 import { track } from "./util/tracker";
 import { focusFirstError } from "./util/focusFirstError";
-import { Draft } from "immer";
 
 interface UseFormHookOptions<FormValues extends Record<string, unknown>> {
   defaultValues?: ValueState<FormValues>;
@@ -48,12 +47,12 @@ type SetValue = (
 ) => void;
 
 type SetValues<FormValues> = (
-  callback: (values: Draft<ValueState<FormValues>>) => void,
+  callback: (values: ValueState<FormValues>) => ValueState<FormValues>,
   shouldValidate?: boolean
 ) => void;
 
 type SetTouched<FormValues> = (
-  callback: (touched: Draft<TouchedState<FormValues>>) => void
+  callback: (touched: TouchedState<FormValues>) => TouchedState<FormValues>
 ) => void;
 
 type IsTouched<FormValues> = (
@@ -274,6 +273,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
           type: "values/update",
           payload: (values) => {
             set(values, name, value);
+            return values;
           },
         });
 
@@ -286,7 +286,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
 
   const setValuesProxy = React.useMemo(() => {
     return (
-      callback: (values: Draft<ValueState<FormValues>>) => void,
+      callback: (values: ValueState<FormValues>) => ValueState<FormValues>,
       shouldValidate?: boolean
     ) => {
       setValues({
@@ -301,7 +301,9 @@ export const useForm = <FormValues extends Record<string, unknown>>(
   }, [setValues, validateForm]);
 
   const setTouchedProxy = React.useMemo(() => {
-    return (callback: (touched: Draft<TouchedState<FormValues>>) => void) => {
+    return (
+      callback: (touched: TouchedState<FormValues>) => TouchedState<FormValues>
+    ) => {
       setTouched({
         type: "touched/update",
         payload: callback,
@@ -317,6 +319,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
         type: "touched/update",
         payload: (touched) => {
           set(touched, name, true);
+          return touched;
         },
       });
 
@@ -390,6 +393,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
               type: "values/update",
               payload: (values) => {
                 set(values, chkboxName, tempValue);
+                return values;
               },
             });
 
@@ -411,6 +415,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
               type: "values/update",
               payload: (values) => {
                 set(values, name, selectedValues);
+                return values;
               },
             });
 
@@ -444,6 +449,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
               type: "values/update",
               payload: (values) => {
                 set(values, name, value);
+                return values;
               },
             });
 

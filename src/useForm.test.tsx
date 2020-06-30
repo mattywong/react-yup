@@ -67,7 +67,10 @@ describe("useValues", () => {
     );
 
     act(() => {
-      result.current.setValues((v) => (v.firstName = "joe biggs"));
+      result.current.setValues((v) => {
+        v.firstName = "joe biggs";
+        return v;
+      });
     });
 
     expect(result.current.values.firstName).toBe("joe biggs");
@@ -129,7 +132,10 @@ describe("useForm touched setters", () => {
     expect(result.current.touched.firstName).toBe(undefined);
 
     act(() => {
-      result.current.setTouched((v) => (v.firstName = true));
+      result.current.setTouched((t) => {
+        t.firstName = true;
+        return t;
+      });
     });
 
     expect(result.current.touched.firstName).toBe(true);
