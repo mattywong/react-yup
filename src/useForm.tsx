@@ -385,7 +385,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
             }
           }
 
-          setValues((dispatch, getState) => {
+          setValues((dispatch) => {
             dispatch({
               type: "values/update",
               payload: (values) => {
@@ -406,7 +406,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
             .filter((option) => option.selected)
             .map((option) => option.value);
 
-          setValues((dispatch, getState) => {
+          setValues((dispatch) => {
             dispatch({
               type: "values/update",
               payload: (values) => {
@@ -439,7 +439,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
         case "text":
         case "textarea":
         default:
-          setValues((dispatch, getState) => {
+          setValues((dispatch) => {
             dispatch({
               type: "values/update",
               payload: (values) => {
