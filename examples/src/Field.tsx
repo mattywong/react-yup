@@ -62,7 +62,11 @@ export const FieldCheck: React.FC<InputFieldProps> = (props) => {
       <input
         className="form-check-input"
         {...rest}
-        checked={isChecked(name, value)}
+        // checked={isChecked(name, value)}
+        checked={isChecked(name)}
+        // checked={isChecked(name, (v) => {
+        //   return value === v;
+        // })}
       />
       <label className="form-check-label" htmlFor={id}>
         {label}

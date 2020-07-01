@@ -1,5 +1,5 @@
 import * as React from "react";
-import type { ValidationError, Schema } from "yup";
+import { ValidationError, Schema } from "yup";
 
 import { get, set } from "lodash-es";
 
@@ -69,6 +69,12 @@ type ValidateFormResult<FormValues> = Promise<{
   yupErrors?: ValidationError;
 }>;
 
+type IsChecked = {
+  (name: string, value: (curValue: any) => boolean): boolean;
+  (name: string, value?: undefined): boolean;
+  (name: string, value: any): boolean;
+};
+
 interface FormBagContext<FormValues> {
   createSubmitHandler: CreateSubmitHandler<FormValues>;
   field: Field;
@@ -78,10 +84,7 @@ interface FormBagContext<FormValues> {
   getValues: () => ValueState<FormValues>;
   getTouched: () => TouchedState<FormValues>;
   isTouched: IsTouched<FormValues>;
-  isChecked: (
-    name: string,
-    value: any | ((curValue: unknown) => boolean)
-  ) => boolean;
+  isChecked: IsChecked;
   setSubmitting: (isSubmitting: boolean) => void;
   setTouched: SetTouched<FormValues>;
   setValue: SetValue;
@@ -177,10 +180,13 @@ export const useForm = <FormValues extends Record<string, unknown>>(
   }, [getTouched]);
 
   const isChecked = React.useMemo(() => {
-    return (
+    function isChecked(name: string, value?: never): boolean;
+    function isChecked(
       name: string,
-      value?: unknown | ((currentValue: unknown) => boolean)
-    ) => {
+      value: (curValue: any) => boolean
+    ): boolean;
+    function isChecked(name: string, value: any): boolean;
+    function isChecked(name: any, value: any): boolean {
       const chkBoxName = name.endsWith("[]") ? name.slice(0, -2) : name;
       const curValue = get(getValues(), chkBoxName, undefined);
 
@@ -195,7 +201,9 @@ export const useForm = <FormValues extends Record<string, unknown>>(
       } else {
         return curValue === value;
       }
-    };
+    }
+
+    return isChecked;
   }, []);
 
   const resetErrors = React.useCallback(() => {
@@ -205,7 +213,10 @@ export const useForm = <FormValues extends Record<string, unknown>>(
   }, [setErrors]);
 
   const validateForm = React.useMemo(() => {
-    if (process.env.NODE_ENV !== "production") {
+    if (
+      process.env.NODE_ENV !== "production" &&
+      process.env.NODE_ENV !== "test"
+    ) {
       track("validateForm");
     }
 
@@ -271,7 +282,10 @@ export const useForm = <FormValues extends Record<string, unknown>>(
   }, [getValues, setErrors, setTouched, validationSchema]);
 
   const setValue: SetValue = React.useMemo(() => {
-    if (process.env.NODE_ENV !== "production") {
+    if (
+      process.env.NODE_ENV !== "production" &&
+      process.env.NODE_ENV !== "test"
+    ) {
       track("setValue");
     }
 
@@ -470,7 +484,10 @@ export const useForm = <FormValues extends Record<string, unknown>>(
   );
 
   const field = React.useMemo(() => {
-    if (process.env.NODE_ENV !== "production") {
+    if (
+      process.env.NODE_ENV !== "production" &&
+      process.env.NODE_ENV !== "test"
+    ) {
       track("field");
     }
 
@@ -481,7 +498,10 @@ export const useForm = <FormValues extends Record<string, unknown>>(
   }, [handleFieldOnBlur, handleFieldOnChange]);
 
   const createSubmitHandler: CreateSubmitHandler<FormValues> = React.useMemo(() => {
-    if (process.env.NODE_ENV !== "production") {
+    if (
+      process.env.NODE_ENV !== "production" &&
+      process.env.NODE_ENV !== "test"
+    ) {
       track("createSubmitHandler");
     }
 
@@ -513,7 +533,10 @@ export const useForm = <FormValues extends Record<string, unknown>>(
   }, [validateForm, submitFocusError, getValues]);
 
   const formBag: FormBagContext<FormValues> = React.useMemo(() => {
-    if (process.env.NODE_ENV !== "production") {
+    if (
+      process.env.NODE_ENV !== "production" &&
+      process.env.NODE_ENV !== "test"
+    ) {
       track("formBag");
     }
 
@@ -553,7 +576,10 @@ export const useForm = <FormValues extends Record<string, unknown>>(
   ]);
 
   const FormProvider = React.useMemo(() => {
-    if (process.env.NODE_ENV !== "production") {
+    if (
+      process.env.NODE_ENV !== "production" &&
+      process.env.NODE_ENV !== "test"
+    ) {
       track("FormProvider");
     }
 
