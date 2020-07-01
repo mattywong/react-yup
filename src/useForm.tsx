@@ -78,7 +78,10 @@ interface FormBagContext<FormValues> {
   getValues: () => ValueState<FormValues>;
   getTouched: () => TouchedState<FormValues>;
   isTouched: IsTouched<FormValues>;
-  isChecked: (name: string, value: any) => boolean;
+  isChecked: (
+    name: string,
+    value: any | ((curValue: unknown) => boolean)
+  ) => boolean;
   setSubmitting: (isSubmitting: boolean) => void;
   setTouched: SetTouched<FormValues>;
   setValue: SetValue;
@@ -174,18 +177,23 @@ export const useForm = <FormValues extends Record<string, unknown>>(
   }, [getTouched]);
 
   const isChecked = React.useMemo(() => {
-    return (name: string, value?: unknown) => {
+    return (
+      name: string,
+      value?: unknown | ((currentValue: unknown) => boolean)
+    ) => {
       const chkBoxName = name.endsWith("[]") ? name.slice(0, -2) : name;
-      const curValue = get(getValues(), chkBoxName, false);
+      const curValue = get(getValues(), chkBoxName, undefined);
+
+      if (typeof value === "function") {
+        return value(curValue);
+      }
 
       if (Array.isArray(curValue)) {
         return curValue.includes(value);
       } else if (typeof curValue === "boolean") {
         return curValue;
-      } else if (typeof curValue === "string") {
-        return curValue === value;
       } else {
-        return false;
+        return curValue === value;
       }
     };
   }, []);
