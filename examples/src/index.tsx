@@ -1,9 +1,5 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { BasicForm } from "./BasicForm";
-import { NestedForm } from "./NestedForm";
-import { CheckboxForm } from "./CheckboxForm";
-import { AdvancedForm } from "./AdvancedForm";
 
 import {
   BrowserRouter as Router,
@@ -12,6 +8,13 @@ import {
   Redirect,
   Link,
 } from "react-router-dom";
+
+import { BasicForm } from "./BasicForm";
+import { NestedForm } from "./NestedForm";
+import { CheckboxForm } from "./CheckboxForm";
+import { AdvancedForm } from "./AdvancedForm";
+import { BootstrapTypeahead } from "./BootstrapTypeahead";
+
 import { Success } from "./Success";
 
 const Container: React.FC<{}> = ({ children }) => {
@@ -45,6 +48,9 @@ const App = () => {
           <li className="list-inline-item">
             <Link to="/advanced">Advanced</Link>
           </li>
+          <li className="list-inline-item">
+            <Link to="/typeahead">BS Typeahead</Link>
+          </li>
         </ul>
       </nav>
       <Switch>
@@ -66,6 +72,11 @@ const App = () => {
         <Route path="/advanced">
           <Container>
             <AdvancedForm />
+          </Container>
+        </Route>
+        <Route path="/typeahead">
+          <Container>
+            <BootstrapTypeahead />
           </Container>
         </Route>
         <Route path="/success">

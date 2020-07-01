@@ -19,7 +19,7 @@ interface UseFormHookOptions<FormValues extends Record<string, unknown>> {
 }
 
 type CreateSubmitHandler<FormValues> = (
-  onSuccess: (values: FormValues) => void,
+  onSuccess: (values: ValueState<FormValues>) => void,
   onError?:
     | ((errors: ErrorState<FormValues>, values: ValueState<FormValues>) => void)
     | undefined
@@ -204,7 +204,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
     return (options?: ValidateFormOptions) => {
       const { touch = true } = options || {};
       return new Promise<{
-        values: FormValues;
+        values: ValueState<FormValues>;
         errors?: ErrorState<FormValues>;
         yupErrors?: ValidationError;
       }>((resolve, reject) => {
@@ -212,7 +212,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
           setErrors({
             type: "errors/reset",
           });
-          return resolve({ values: getValues() as FormValues });
+          return resolve({ values: getValues() as ValueState<FormValues> });
         }
 
         validationSchema
@@ -223,7 +223,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
             setErrors({
               type: "errors/reset",
             });
-            resolve({ values: values as FormValues });
+            resolve({ values: values as ValueState<FormValues> });
           })
           .catch((errors: ValidationError) => {
             if (errors.name !== "ValidationError") {

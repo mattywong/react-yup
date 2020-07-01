@@ -1,7 +1,22 @@
 import { useThunkReducer } from "./useThunkReducer";
 
-export type ValueState<FormValues> = {
-  [Key in keyof FormValues]?: ValueState<FormValues[Key]>;
+// export type ValueState<T> = {
+//   [Key in keyof T]?: ValueState<T[Key]>;
+// };
+
+export type InnerValueState<T> = T extends
+  | string
+  | number
+  | boolean
+  | undefined
+  | Function
+  ? T // if primitive, leave as primitive
+  : {
+      [P in keyof T]?: InnerValueState<T[P]>;
+    };
+
+export type ValueState<T> = {
+  [Key in keyof T]?: InnerValueState<T[Key]>;
 };
 
 type ValuesActions<FormValues> = {
