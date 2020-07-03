@@ -1,4 +1,5 @@
 import * as React from "react";
+import { cloneDeep } from "lodash-es";
 
 export const useThunkReducer = <State, Actions>(
   reducer: React.Reducer<State, Actions>,
@@ -8,7 +9,7 @@ export const useThunkReducer = <State, Actions>(
     return reducer;
   }, []);
 
-  const [$state, $setState] = React.useState(initialState);
+  const [$state, $setState] = React.useState(cloneDeep(initialState));
 
   const stateRef = React.useRef<State>($state);
 

@@ -3,6 +3,7 @@ import { useForm } from "../../src/index";
 
 import * as Yup from "yup";
 import { Field, FieldCheck } from "./Field";
+import { RecursivePartial } from "../../src/types";
 
 const schema = Yup.object({
   form: Yup.object({
@@ -19,7 +20,11 @@ const schema = Yup.object({
 
 type FormValues = Yup.InferType<typeof schema>;
 
-export const NestedForm = () => {
+interface NestedFormProps {
+  defaultValues?: RecursivePartial<FormValues>;
+}
+
+export const NestedForm: React.FC<NestedFormProps> = ({ defaultValues }) => {
   const [validationSchema, setValidationSchema] = React.useState<
     Yup.Schema<FormValues> | undefined
   >(schema);
@@ -38,15 +43,7 @@ export const NestedForm = () => {
     setValues,
   } = useForm<FormValues>({
     validationSchema,
-    defaultValues: {
-      form: {
-        address: {
-          number: 22,
-          street: "yea boi",
-        },
-      },
-      shouldValidate: true,
-    },
+    defaultValues,
   });
 
   React.useEffect(() => {

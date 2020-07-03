@@ -73,7 +73,18 @@ const App = () => {
         </Route>
         <Route path="/nested">
           <Container>
-            <NestedForm />
+            <NestedForm
+              defaultValues={{
+                form: {
+                  firstName: "John",
+                  address: {
+                    number: 22,
+                    street: "yea boi",
+                  },
+                },
+                shouldValidate: true,
+              }}
+            />
           </Container>
         </Route>
         <Route path="/checkbox">
