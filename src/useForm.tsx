@@ -3,7 +3,7 @@ import { ValidationError, Schema } from "yup";
 
 import { get, set } from "lodash-es";
 
-import { useValues, ValueState } from "./useValues";
+import { useValues, ValueState, InnerValueState } from "./useValues";
 import { useTouched, TouchedState } from "./useTouched";
 import { useErrors, ErrorState } from "./useErrors";
 
@@ -38,8 +38,6 @@ type Field = {
   ) => void;
 };
 
-type GetState<T, Y> = (name: string | ((state: T) => Y)) => Y;
-
 type SetValue = (
   name: string,
   value: unknown,
@@ -54,10 +52,6 @@ type SetValues<FormValues> = (
 type SetTouched<FormValues> = (
   callback: (touched: TouchedState<FormValues>) => TouchedState<FormValues>
 ) => void;
-
-type IsTouched<FormValues> = (
-  name: string | ((touched: TouchedState<FormValues>) => undefined | boolean)
-) => undefined | boolean;
 
 interface ValidateFormOptions {
   touch?: boolean;
@@ -78,12 +72,27 @@ type IsChecked = {
 interface FormBagContext<FormValues> {
   createSubmitHandler: CreateSubmitHandler<FormValues>;
   field: Field;
-  getError: GetState<FormValues, string | undefined>;
+  getError: {
+    (name: string): string | undefined;
+    (callback: (errors: ErrorState<FormValues>) => string | undefined):
+      | string
+      | undefined;
+  };
   getErrors: () => ErrorState<FormValues>;
-  getValue: GetState<FormValues, unknown>;
+  getValue: {
+    (name: string): unknown;
+    <R>(callback: (values: ValueState<FormValues>) => R | undefined):
+      | R
+      | undefined;
+  };
   getValues: () => ValueState<FormValues>;
   getTouched: () => TouchedState<FormValues>;
-  isTouched: IsTouched<FormValues>;
+  isTouched: {
+    (name: string): boolean;
+    (callback: (touched: TouchedState<FormValues>) => undefined | boolean):
+      | undefined
+      | boolean;
+  };
   isChecked: IsChecked;
   setSubmitting: (isSubmitting: boolean) => void;
   setTouched: SetTouched<FormValues>;
@@ -133,40 +142,44 @@ export const useForm = <FormValues extends Record<string, unknown>>(
 
   const [submitting, setSubmitting] = React.useState(false);
 
-  const getValue = React.useCallback(
-    (name) => {
+  const getValue = React.useMemo(() => {
+    function getValue(name: string): unknown;
+    function getValue<R>(callback: (values: ValueState<FormValues>) => R): R;
+    function getValue(name: any) {
       if (typeof name === "function") {
         return name(getValues());
       }
 
       return get(getValues(), name);
-    },
-    [getValues]
-  );
+    }
 
-  const getError = React.useCallback(
-    (name) => {
+    return getValue;
+  }, [getValues]);
+
+  const getError = React.useMemo(() => {
+    function getError(name: string): string | undefined;
+    function getError(
+      callback: (errors: ErrorState<FormValues>) => string | undefined
+    ): string | undefined;
+    function getError(name: any) {
       if (typeof name === "function") {
         return name(getErrors());
       }
 
       return get(getErrors(), name);
-    },
-    [getErrors]
-  );
+    }
 
-  const isTouched: IsTouched<FormValues> = React.useMemo(() => {
-    return (
-      name:
-        | string
-        | ((touched: TouchedState<FormValues>) => undefined | boolean)
-    ) => {
+    return getError;
+  }, [getErrors]);
+
+  const isTouched = React.useMemo(() => {
+    function isTouched(name: string): boolean;
+    function isTouched(
+      callback: (touched: TouchedState<FormValues>) => undefined | boolean
+    ): undefined | boolean;
+    function isTouched(name: any) {
       if (typeof name === "string") {
-        return get(
-          getTouched() as TouchedState<FormValues>,
-          name,
-          undefined
-        ) as boolean | undefined;
+        return get(getTouched() as TouchedState<FormValues>, name, false);
       }
 
       if (typeof name === "function") {
@@ -176,7 +189,9 @@ export const useForm = <FormValues extends Record<string, unknown>>(
       throw Error(
         `Parameter of type ${typeof name} is not allowed in isTouched call`
       );
-    };
+    }
+
+    return isTouched;
   }, [getTouched]);
 
   const isChecked = React.useMemo(() => {

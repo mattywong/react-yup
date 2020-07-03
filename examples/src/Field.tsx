@@ -6,6 +6,22 @@ interface FieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
 }
 
+/**
+ * By using the useFormBag() hook, we are expecting the Field component
+ * to be executed every render, so we do not want to wrap a component like this
+ * inside a React.memo as otherwise it will only update when one of it's props changes,
+ * which will never change as we are getting the value, error and touched state of the field
+ * inside the Field component itself.
+ *
+ * Note that this doesn't affect DOM rendering, only the React lifecycle.
+ *
+ * If you really need/want to opt out of the React rendering lifecycle with React.memo,
+ * you will have to pass the value, error and touched values to the Component itself and mark
+ * it as a PureComponent or wrap the component with React.memo.
+ *
+ * See PureField below for an implementation of this,
+ * and PureForm of how it's all used together.
+ * */
 export const Field = <FormValues extends Record<string, unknown>>({
   label,
   name,
@@ -43,6 +59,40 @@ export const Field = <FormValues extends Record<string, unknown>>({
   );
 };
 
+interface PureFieldProps extends FieldProps {
+  error?: string;
+  touched?: boolean;
+}
+
+const _PureField = <FormValues extends Record<string, unknown>>({
+  label,
+  name,
+  error,
+  touched,
+  ...rest
+}: PureFieldProps): JSX.Element => {
+  if (!name) {
+    throw Error("No name passed to Field");
+  }
+
+  React.useEffect(() => {
+    track("PureField");
+  }, []);
+
+  return (
+    <div className="form-group">
+      <label htmlFor={name}>{label}</label>
+      <input className="form-control" id={name} name={name} {...rest} />
+      {error && touched && (
+        <div className="invalid-feedback d-block mb-2">{error}</div>
+      )}
+    </div>
+  );
+};
+
+export const PureField = React.memo(_PureField);
+PureField.whyDidYouRender = true;
+
 interface InputFieldProps
   extends React.DetailedHTMLProps<
     React.InputHTMLAttributes<HTMLInputElement>,
@@ -59,15 +109,7 @@ export const FieldCheck: React.FC<InputFieldProps> = (props) => {
 
   return (
     <div className="form-check">
-      <input
-        className="form-check-input"
-        {...rest}
-        // checked={isChecked(name, value)}
-        checked={isChecked(name)}
-        // checked={isChecked(name, (v) => {
-        //   return value === v;
-        // })}
-      />
+      <input className="form-check-input" {...rest} checked={isChecked(name)} />
       <label className="form-check-label" htmlFor={id}>
         {label}
       </label>

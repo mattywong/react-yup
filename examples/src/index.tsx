@@ -1,4 +1,12 @@
 import * as React from "react";
+import whyDidYouRender from "@welldone-software/why-did-you-render";
+
+if (process.env.NODE_ENV !== "production") {
+  whyDidYouRender(React, {
+    trackAllPureComponents: true,
+  });
+}
+
 import * as ReactDOM from "react-dom";
 
 import {
@@ -13,6 +21,7 @@ import { BasicForm } from "./BasicForm";
 import { NestedForm } from "./NestedForm";
 import { CheckboxForm } from "./CheckboxForm";
 import { AdvancedForm } from "./AdvancedForm";
+import { PureForm } from "./PureForm";
 import { BootstrapTypeahead } from "./BootstrapTypeahead";
 
 import { Success } from "./Success";
@@ -51,6 +60,9 @@ const App = () => {
           <li className="list-inline-item">
             <Link to="/typeahead">BS Typeahead</Link>
           </li>
+          <li className="list-inline-item">
+            <Link to="/pure-form">Pure form</Link>
+          </li>
         </ul>
       </nav>
       <Switch>
@@ -79,9 +91,15 @@ const App = () => {
             <BootstrapTypeahead />
           </Container>
         </Route>
+        <Route path="/pure-form">
+          <Container>
+            <PureForm />
+          </Container>
+        </Route>
         <Route path="/success">
           <Success />
         </Route>
+
         <Redirect to="/basic" />
       </Switch>
     </Router>
