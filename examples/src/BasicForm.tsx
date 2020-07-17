@@ -4,18 +4,29 @@ import { useForm } from "../../src/index";
 import * as Yup from "yup";
 import { Field } from "./Field";
 
-const schema = Yup.object({
-  email: Yup.string().required().email().defined(),
-  firstName: Yup.string().required().defined(),
-  lastName: Yup.string().required().defined(),
-  experience: Yup.string().required().defined(),
-  colours: Yup.array().of(Yup.string()).required().defined(),
-  gender: Yup.mixed().oneOf(["male", "female", "unknown"]).defined(),
-}).defined();
-
-type FormValues = Yup.InferType<typeof schema>;
-
 export const BasicForm = () => {
+  const [shouldValidate, setShouldValidate] = React.useState(true);
+
+  const schema = React.useMemo(() => {
+    if (!shouldValidate) {
+      return undefined;
+    }
+    return Yup.object({
+      email: Yup.string().required().email().defined(),
+      firstName: Yup.string().required().defined(),
+      lastName: Yup.string().required().defined(),
+      experience: Yup.string().required().defined(),
+      colours: Yup.array().of(Yup.string()).required().defined(),
+      gender: Yup.mixed().oneOf(["male", "female", "unknown"]).defined(),
+      number: Yup.number().oneOf([1, 2, 3]).defined(),
+      confirmNumber: Yup.mixed().when("number", {
+        is: 2,
+        then: Yup.number().required().typeError("Wrong value of type"),
+        otherwise: Yup.number().notRequired(),
+      }),
+    }).defined();
+  }, [shouldValidate]);
+
   const {
     createSubmitHandler,
     field,
@@ -24,7 +35,7 @@ export const BasicForm = () => {
     getValue,
     touched,
     errors,
-  } = useForm<FormValues>({
+  } = useForm({
     validationSchema: schema,
     defaultValues: {},
     defaultErrors: {},
@@ -39,10 +50,23 @@ export const BasicForm = () => {
 
   return (
     <FormProvider>
+      <div className="form-check">
+        <input
+          className="form-check-input"
+          type="checkbox"
+          name="shouldValidate"
+          id="shouldValidate"
+          onChange={(e) => setShouldValidate(e.target.checked)}
+          checked={shouldValidate}
+        />
+        <label className="form-check-label" htmlFor="shouldValidate">
+          Should validate
+        </label>
+      </div>
+
       <form onSubmit={handleSubmit}>
         <Field name="email" label="Email Address" />
         <Field name="firstName" label="First name" />
-
         <div className="form-group">
           <label htmlFor="lastName">Last name</label>
 
@@ -153,6 +177,64 @@ export const BasicForm = () => {
             <div className="invalid-feedback d-block mb-2">{errors.gender}</div>
           )}
         </fieldset>
+        <fieldset className="form-group">
+          <div className="row">
+            <legend className="col-form-label col-sm-2 pt-0">
+              Pick a number
+            </legend>
+            <div className="col-sm-10">
+              <div className="form-check">
+                <input
+                  className="form-check-input"
+                  type="radio"
+                  name="number"
+                  id="number__1"
+                  value={1}
+                  checked={values.number === 1}
+                  {...field}
+                />
+                <label className="form-check-label" htmlFor="number__1">
+                  One
+                </label>
+              </div>
+              <div className="form-check">
+                <input
+                  className="form-check-input"
+                  type="radio"
+                  name="number"
+                  id="number__2"
+                  value={2}
+                  checked={getValue((v) => v.number) === 2}
+                  {...field}
+                />
+                <label className="form-check-label" htmlFor="number__2">
+                  Two
+                </label>
+              </div>
+              <div className="form-check">
+                <input
+                  className="form-check-input"
+                  type="radio"
+                  name="number"
+                  id="number__3"
+                  value={3}
+                  checked={getValue((v) => v.number) === 3}
+                  {...field}
+                />
+                <label className="form-check-label" htmlFor="number__3">
+                  Three
+                </label>
+              </div>
+            </div>
+          </div>
+          {errors.number && touched.number && (
+            <div className="invalid-feedback d-block mb-2">{errors.number}</div>
+          )}
+        </fieldset>
+
+        <div className="form-group">
+          <Field name="confirmNumber" label="Confirm number" />
+        </div>
         <button className="btn btn-primary" type="submit">
           Submit
         </button>

@@ -161,12 +161,12 @@ export const useForm = <FormValues extends Record<string, unknown>>(
     function getError(
       callback: (errors: ErrorState<FormValues>) => string | undefined
     ): string | undefined;
-    function getError(name: any) {
+    function getError(name: unknown) {
       if (typeof name === "function") {
         return name(getErrors());
       }
 
-      return get(getErrors(), name);
+      return get(getErrors(), name as string);
     }
 
     return getError;
@@ -177,7 +177,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
     function isTouched(
       callback: (touched: TouchedState<FormValues>) => undefined | boolean
     ): undefined | boolean;
-    function isTouched(name: any) {
+    function isTouched(name: unknown) {
       if (typeof name === "string") {
         return get(getTouched() as TouchedState<FormValues>, name, false);
       }
@@ -219,7 +219,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
     }
 
     return isChecked;
-  }, []);
+  }, [getValues]);
 
   const resetErrors = React.useCallback(() => {
     setErrors({
@@ -296,6 +296,87 @@ export const useForm = <FormValues extends Record<string, unknown>>(
     };
   }, [getValues, setErrors, setTouched, validationSchema]);
 
+  const validateField = React.useMemo(() => {
+    if (
+      process.env.NODE_ENV !== "production" &&
+      process.env.NODE_ENV !== "test"
+    ) {
+      track("validateField");
+    }
+
+    return (
+      name: string,
+      values: ValueState<FormValues>,
+      shouldTouch = true
+    ) => {
+      return new Promise((resolve, reject) => {
+        if (shouldTouch) {
+          setTouched({
+            type: "touched/update",
+            payload: (touched) => {
+              set(touched, name, true);
+              return touched;
+            },
+          });
+        }
+
+        if (!validationSchema) {
+          setErrors({
+            type: "errors/reset",
+          });
+          return resolve(get(values, name));
+        }
+
+        try {
+          validationSchema
+            .validateAt(name, validationSchema.cast(values), {
+              abortEarly: false,
+            })
+            .then((value) => {
+              setErrors({
+                type: "errors/update",
+                payload: (errors) => {
+                  set(errors, name, undefined);
+                  return errors;
+                },
+              });
+              return resolve(value);
+            })
+            .catch((error: ValidationError) => {
+              if (error.name !== "ValidationError") {
+                return reject("Unhandled validateField error");
+              }
+
+              console.dir(error);
+              setErrors({
+                type: "errors/update",
+                payload: (errors) => {
+                  set(errors, name, error.message);
+                  return errors;
+                },
+              });
+            });
+        } catch (error) {
+          /* 
+            This error block happens on a TypeError.
+            This happens when a schema is expecting x type but received y
+            e.g expects Yup.number() but received Yup.string().
+            When this happens, because the Error is not of type ValidationError,
+            we validate the whole form as the error messages will be different otherwise.
+          */
+
+          if (error.name !== "TypeError") {
+            return reject("Unhandled validation error");
+          }
+
+          validateForm({ touch: false });
+
+          return reject(error);
+        }
+      });
+    };
+  }, [setErrors, setTouched, validateForm, validationSchema]);
+
   const setValue: SetValue = React.useMemo(() => {
     if (
       process.env.NODE_ENV !== "production" &&
@@ -352,12 +433,16 @@ export const useForm = <FormValues extends Record<string, unknown>>(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name } = e.target;
 
-      setTouched({
-        type: "touched/update",
-        payload: (touched) => {
-          set(touched, name, true);
-          return touched;
-        },
+      setTouched((dispatch, getTouched) => {
+        dispatch({
+          type: "touched/update",
+          payload: (touched) => {
+            set(touched, name, true);
+            return touched;
+          },
+        });
+
+        // validateField(name, getValues());
       });
 
       validateForm({ touch: false });
@@ -463,7 +548,6 @@ export const useForm = <FormValues extends Record<string, unknown>>(
 
         // select element- single -> can use normal input[type=text] handler
         case "select-one":
-        // input element types
         case "email":
         case "color":
         case "date":
@@ -481,21 +565,34 @@ export const useForm = <FormValues extends Record<string, unknown>>(
         case "text":
         case "textarea":
         default:
-          setValues((dispatch) => {
-            dispatch({
-              type: "values/update",
-              payload: (values) => {
-                set(values, name, value);
-                return values;
-              },
-            });
+          setValues((dispatch, getValues) => {
+            const draft = getValues();
+            set(draft, name, value);
 
-            validateForm({ touch: false });
+            validateField(name, draft)
+              .then((value) => {
+                dispatch({
+                  type: "values/update",
+                  payload: (values) => {
+                    set(values, name, value);
+                    return values;
+                  },
+                });
+              })
+              .catch((err) => {
+                dispatch({
+                  type: "values/update",
+                  payload: (values) => {
+                    set(values, name, value);
+                    return values;
+                  },
+                });
+              });
           });
           break;
       }
     },
-    [setValues, getValues, validateForm]
+    [setValues, getValues, validateForm, validateField]
   );
 
   const field = React.useMemo(() => {

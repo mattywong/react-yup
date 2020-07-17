@@ -239,7 +239,7 @@ describe("createSubmitHandler works correctly when form is valid and invalid", (
   test("createSubmitHandler works correctly when form is valid", async () => {
     const FormComponent = () => {
       const [success, setSuccess] = React.useState(false);
-      const { values, createSubmitHandler } = useForm({
+      const { values, createSubmitHandler, field } = useForm({
         defaultValues: {
           firstName: "hello world",
         },
@@ -254,7 +254,7 @@ describe("createSubmitHandler works correctly when form is valid and invalid", (
 
       return (
         <form onSubmit={handleSubmit}>
-          <input type="text" value={values.firstName} />
+          <input type="text" value={values.firstName} {...field} />
           {success && <div role="alert">Success</div>}
           <button type="submit">Submit</button>
         </form>
@@ -272,7 +272,7 @@ describe("createSubmitHandler works correctly when form is valid and invalid", (
   test("createSubmitHandler works correctly when form is invalid", async () => {
     const FormComponent = () => {
       const [failed, setFailed] = React.useState(false);
-      const { values, createSubmitHandler } = useForm({
+      const { values, createSubmitHandler, field } = useForm({
         validationSchema: Yup.object({
           firstName: Yup.string().required(),
         }),
@@ -289,7 +289,7 @@ describe("createSubmitHandler works correctly when form is valid and invalid", (
 
       return (
         <form onSubmit={handleSubmit}>
-          <input type="text" value={values.firstName} />
+          <input type="text" value={values.firstName} {...field} />
           {failed && <div role="alert">Failed</div>}
           <button type="submit">Submit</button>
         </form>
@@ -306,7 +306,7 @@ describe("createSubmitHandler works correctly when form is valid and invalid", (
 
   test("createSubmitHandler works correctly when form is invalid and no error callback handler is passed", async () => {
     const FormComponent = () => {
-      const { values, errors, createSubmitHandler } = useForm({
+      const { values, errors, createSubmitHandler, field } = useForm({
         validationSchema: Yup.object({
           firstName: Yup.string().required(),
         }),
@@ -318,7 +318,7 @@ describe("createSubmitHandler works correctly when form is valid and invalid", (
 
       return (
         <form onSubmit={handleSubmit}>
-          <input type="text" value={values.firstName} />
+          <input type="text" value={values.firstName} {...field} />
           <button type="submit">Submit</button>
           {errors.firstName && <div role="alert">{errors.firstName}</div>}
         </form>
