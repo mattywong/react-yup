@@ -102,6 +102,11 @@ interface FormBagContext<FormValues> {
   validateForm: (
     options?: ValidateFormOptions
   ) => ValidateFormResult<FormValues>;
+  validateField: (
+    name: string,
+    values: ValueState<FormValues>,
+    shouldTouch?: boolean
+  ) => Promise<unknown>;
 }
 
 interface UseFormHookResult<FormValues> extends FormBagContext<FormValues> {
@@ -203,7 +208,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
     function isChecked(name: string, value: any): boolean;
     function isChecked(name: any, value: any): boolean {
       const chkBoxName = name.endsWith("[]") ? name.slice(0, -2) : name;
-      const curValue = get(getValues(), chkBoxName, undefined);
+      const curValue = get(getValues(), chkBoxName, null);
 
       if (typeof value === "function") {
         return value(curValue);
@@ -441,8 +446,6 @@ export const useForm = <FormValues extends Record<string, unknown>>(
             return touched;
           },
         });
-
-        // validateField(name, getValues());
       });
 
       validateForm({ touch: false });
@@ -510,16 +513,31 @@ export const useForm = <FormValues extends Record<string, unknown>>(
             }
           }
 
-          setValues((dispatch) => {
-            dispatch({
-              type: "values/update",
-              payload: (values) => {
-                set(values, chkboxName, tempValue);
-                return values;
-              },
-            });
+          setValues((dispatch, getValues) => {
+            const draft = getValues();
+            set(draft, chkboxName, tempValue);
 
-            validateForm({ touch: false });
+            validateField(chkboxName, draft)
+              .then((value) => {
+                console.log(tempValue);
+                console.log(value);
+                dispatch({
+                  type: "values/update",
+                  payload: (values) => {
+                    set(values, chkboxName, tempValue);
+                    return values;
+                  },
+                });
+              })
+              .catch((err) => {
+                dispatch({
+                  type: "values/update",
+                  payload: (values) => {
+                    set(values, chkboxName, tempValue);
+                    return values;
+                  },
+                });
+              });
           });
 
           break;
@@ -532,17 +550,31 @@ export const useForm = <FormValues extends Record<string, unknown>>(
             .filter((option) => option.selected)
             .map((option) => option.value);
 
-          setValues((dispatch) => {
-            dispatch({
-              type: "values/update",
-              payload: (values) => {
-                set(values, name, selectedValues);
-                return values;
-              },
-            });
+          setValues((dispatch, getValues) => {
+            const draft = getValues();
+            set(draft, name, selectedValues);
 
-            validateForm({ touch: false });
+            validateField(name, draft)
+              .then((value) => {
+                dispatch({
+                  type: "values/update",
+                  payload: (values) => {
+                    set(values, name, selectedValues);
+                    return values;
+                  },
+                });
+              })
+              .catch((err) => {
+                dispatch({
+                  type: "values/update",
+                  payload: (values) => {
+                    set(values, name, selectedValues);
+                    return values;
+                  },
+                });
+              });
           });
+
           break;
         }
 
@@ -592,7 +624,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
           break;
       }
     },
-    [setValues, getValues, validateForm, validateField]
+    [setValues, getValues, validateField]
   );
 
   const field = React.useMemo(() => {
@@ -668,6 +700,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
       setValue,
       setValues: setValuesProxy,
       validateForm,
+      validateField,
     };
   }, [
     createSubmitHandler,
@@ -685,6 +718,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
     setValue,
     setValuesProxy,
     validateForm,
+    validateField,
   ]);
 
   const FormProvider = React.useMemo(() => {
