@@ -15,6 +15,10 @@ const SCHEMA = Yup.object({
     .defined(),
   agreeToTos: Yup.boolean().required().defined(),
   colours: Yup.array().of(Yup.string()),
+  number: Yup.number().required(),
+  number2: Yup.number()
+    .oneOf([1, 2, 3] as const)
+    .required(),
 }).defined();
 
 test("useForm hook doesn't crash", () => {
@@ -250,7 +254,7 @@ describe("createSubmitHandler works correctly when form is valid and invalid", (
           console.log(v);
           setSuccess(true);
         });
-      }, []);
+      }, [createSubmitHandler]);
 
       return (
         <form onSubmit={handleSubmit}>
@@ -285,7 +289,7 @@ describe("createSubmitHandler works correctly when form is valid and invalid", (
             setFailed(true);
           }
         );
-      }, []);
+      }, [createSubmitHandler]);
 
       return (
         <form onSubmit={handleSubmit}>
@@ -376,5 +380,263 @@ describe("useFormBag", () => {
 
     // await waitFor(() => screen.getByRole("alert"));
     expect(screen.getByRole("alert")).toHaveTextContent("Success");
+  });
+});
+
+test("validateField works correctly with casting", async () => {
+  const { result, waitForNextUpdate } = renderHook(() =>
+    useForm({
+      validationSchema: SCHEMA,
+      defaultValues: {
+        // @ts-expect-error
+        number: "1",
+      },
+    })
+  );
+
+  let _value;
+
+  act(() => {
+    result.current
+      .validateField("number", result.current.getValues())
+      .then((value) => {
+        _value = value;
+      });
+  });
+
+  await waitForNextUpdate();
+  expect(_value).toBe(1);
+});
+
+test("validateField correctly catches type errors", async () => {
+  const { result, waitForNextUpdate } = renderHook(() =>
+    useForm({
+      validationSchema: SCHEMA,
+      defaultValues: {
+        // @ts-expect-error
+        number: "hello world",
+      },
+    })
+  );
+
+  let error;
+
+  act(() => {
+    result.current
+      .validateField("number", result.current.getValues())
+      .catch((err) => {
+        error = err;
+      });
+  });
+
+  await waitForNextUpdate();
+
+  if (!error) {
+    return fail("Error received is undefined");
+  }
+
+  expect((error as { name: "TypeError" }).name).toBe("TypeError");
+});
+
+test("validateField correctly handles ValidationError", async () => {
+  const { result, waitForNextUpdate } = renderHook(() =>
+    useForm({
+      validationSchema: SCHEMA,
+      defaultValues: {
+        // @ts-expect-error
+        number2: 5,
+      },
+    })
+  );
+
+  let error;
+
+  act(() => {
+    result.current
+      .validateField("number2", result.current.getValues())
+      .then((val) => {
+        // should never hit this block
+      })
+      .catch((err) => {
+        error = err;
+      });
+  });
+
+  await waitForNextUpdate();
+
+  if (!error) {
+    return fail("Error received is undefined");
+  }
+
+  expect((error as Yup.ValidationError).name).toBe("ValidationError");
+});
+
+describe("FormBag field works correctly", () => {
+  test("onChange handler works correctly on checkbox inputs", async () => {
+    const FormComponent = () => {
+      const {
+        values,
+        errors,
+        createSubmitHandler,
+        FormProvider,
+        field,
+      } = useForm({
+        validationSchema: Yup.object({
+          firstName: Yup.string().required(),
+        }),
+      });
+
+      const handleSubmit = React.useMemo(() => {
+        return createSubmitHandler((v) => {});
+      }, []);
+
+      return (
+        <FormProvider>
+          <form onSubmit={handleSubmit}>
+            <input
+              type="checkbox"
+              value="Yes"
+              {...field}
+              name="yes"
+              title="testChk1"
+            />
+            <input
+              type="checkbox"
+              value="No"
+              {...field}
+              name="yes"
+              title="testChk2"
+            />
+          </form>
+          <pre role="alert">{JSON.stringify(values)}</pre>
+        </FormProvider>
+      );
+    };
+
+    const { container, asFragment } = render(<FormComponent />);
+
+    fireEvent.click(screen.getByTitle("testChk1"));
+
+    await waitFor(() => screen.getByRole("alert"));
+
+    expect(screen.getByRole("alert")).toHaveTextContent(`{"yes":"Yes"}`);
+
+    fireEvent.click(screen.getByTitle("testChk2"));
+    await waitFor(() => screen.getByRole("alert"));
+
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      JSON.stringify({ yes: ["Yes", "No"] })
+    );
+  });
+
+  test("onChange handler works correctly on checkbox inputs with name[]", async () => {
+    const FormComponent = () => {
+      const {
+        values,
+        errors,
+        createSubmitHandler,
+        FormProvider,
+        field,
+      } = useForm({
+        validationSchema: Yup.object({
+          firstName: Yup.string().required(),
+        }),
+      });
+
+      const handleSubmit = React.useMemo(() => {
+        return createSubmitHandler((v) => {});
+      }, []);
+
+      return (
+        <FormProvider>
+          <form onSubmit={handleSubmit}>
+            <input
+              type="checkbox"
+              value="Yes"
+              aria-label="testChk1"
+              {...field}
+              name="yes[]"
+              title="testChk1"
+            />
+            <input
+              type="checkbox"
+              value="No"
+              aria-label="testChk2"
+              {...field}
+              name="yes[]"
+              title="testChk2"
+            />
+          </form>
+          <pre role="alert">{JSON.stringify(values)}</pre>
+        </FormProvider>
+      );
+    };
+
+    const { container, asFragment, getByLabelText } = render(<FormComponent />);
+
+    fireEvent.click(screen.getByTitle("testChk1"));
+
+    await waitFor(() => screen.getByRole("alert"));
+
+    expect(screen.getByRole("alert")).toHaveTextContent(`{"yes":["Yes"]}`);
+
+    fireEvent.click(screen.getByTitle("testChk2"));
+    await waitFor(() => screen.getByRole("alert"));
+
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      JSON.stringify({ yes: ["Yes", "No"] })
+    );
+  });
+
+  test("onChange handler works correctly on text inputs", async () => {
+    const FormComponent = () => {
+      const {
+        values,
+        errors,
+        createSubmitHandler,
+        FormProvider,
+        field,
+      } = useForm({
+        validationSchema: Yup.object({
+          firstName: Yup.string().required(),
+        }),
+      });
+
+      const handleSubmit = React.useMemo(() => {
+        return createSubmitHandler((v) => {});
+      }, []);
+
+      return (
+        <FormProvider>
+          <form onSubmit={handleSubmit}>
+            <input
+              type="text"
+              aria-label="input.firstName"
+              {...field}
+              value={values.firstName}
+              name="firstName"
+            />
+          </form>
+          <pre role="alert">{JSON.stringify(values)}</pre>
+        </FormProvider>
+      );
+    };
+
+    const { container, asFragment, getByLabelText } = render(<FormComponent />);
+
+    fireEvent.change(screen.getByLabelText("input.firstName"), {
+      target: {
+        value: "test",
+        name: "firstName",
+      },
+    });
+
+    await waitFor(() => screen.getByRole("alert"));
+
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      JSON.stringify({
+        firstName: "test",
+      })
+    );
   });
 });

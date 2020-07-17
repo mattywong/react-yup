@@ -332,35 +332,10 @@ export const useForm = <FormValues extends Record<string, unknown>>(
           return resolve(get(values, name));
         }
 
-        try {
-          validationSchema
-            .validateAt(name, validationSchema.cast(values), {
-              abortEarly: false,
-            })
-            .then((value) => {
-              setErrors({
-                type: "errors/update",
-                payload: (errors) => {
-                  set(errors, name, undefined);
-                  return errors;
-                },
-              });
-              return resolve(value);
-            })
-            .catch((error: ValidationError) => {
-              if (error.name !== "ValidationError") {
-                return reject("Unhandled validateField error");
-              }
+        let draft;
 
-              console.dir(error);
-              setErrors({
-                type: "errors/update",
-                payload: (errors) => {
-                  set(errors, name, error.message);
-                  return errors;
-                },
-              });
-            });
+        try {
+          draft = validationSchema.cast(values);
         } catch (error) {
           /* 
             This error block happens on a TypeError.
@@ -369,15 +344,44 @@ export const useForm = <FormValues extends Record<string, unknown>>(
             When this happens, because the Error is not of type ValidationError,
             we validate the whole form as the error messages will be different otherwise.
           */
+          validateForm({ touch: false });
 
           if (error.name !== "TypeError") {
             return reject("Unhandled validation error");
           }
 
-          validateForm({ touch: false });
-
           return reject(error);
         }
+
+        validationSchema
+          .validateAt(name, draft, {
+            abortEarly: false,
+          })
+          .then((value) => {
+            setErrors({
+              type: "errors/update",
+              payload: (errors) => {
+                set(errors, name, undefined);
+                return errors;
+              },
+            });
+            return resolve(value);
+          })
+          .catch((error: ValidationError) => {
+            if (error.name !== "ValidationError") {
+              return reject("Unhandled validateField error");
+            }
+
+            setErrors({
+              type: "errors/update",
+              payload: (errors) => {
+                set(errors, name, error.message);
+                return errors;
+              },
+            });
+
+            reject(error);
+          });
       });
     };
   }, [setErrors, setTouched, validateForm, validationSchema]);

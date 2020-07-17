@@ -217,7 +217,7 @@ export const BasicForm = () => {
                   type="radio"
                   name="number"
                   id="number__3"
-                  value={3}
+                  value={"three"}
                   checked={getValue((v) => v.number) === 3}
                   {...field}
                 />
