@@ -1,4 +1,4 @@
-# @eduka/form
+# react-yup
 
 This is an attempt to solve the form validation problem in React.
 
@@ -27,18 +27,18 @@ You can find the setup guide:
 4. Follow setup instructions there
 
 ```
-yarn add yup @eduka/form
+yarn add yup react-yup
 ```
 
 ```
-npm install yup @eduka/form
+npm install yup react-yup
 ```
 
 
 ## Basic usage
 
 ```
-import { useForm } from '@eduka/form';
+import { useForm } from 'react-yup';
 import * as Yup from 'yup';
 
 const schema = Yup.object({
