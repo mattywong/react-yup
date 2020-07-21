@@ -269,8 +269,15 @@ export const useForm = <FormValues extends Record<string, unknown>>(
               reject("Unhandled validation error");
             }
 
+            const nextTouched = getTouched();
+
             const formErrors = errors.inner.reduce((acc, cur) => {
               set(acc, cur.path, cur.message);
+
+              if (touch) {
+                set(nextTouched, cur.path, true);
+              }
+
               return acc;
             }, {} as ErrorState<FormValues>);
 
@@ -280,11 +287,6 @@ export const useForm = <FormValues extends Record<string, unknown>>(
             });
 
             if (touch) {
-              const nextTouched = errors.inner.reduce((acc, cur) => {
-                set(acc, cur.path, true);
-                return acc;
-              }, {} as TouchedState<FormValues>);
-
               setTouched({
                 type: "touched/update/all",
                 payload: nextTouched,
@@ -299,7 +301,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
           });
       });
     };
-  }, [getValues, setErrors, setTouched, validationSchema]);
+  }, [getValues, setErrors, setTouched, getTouched, validationSchema]);
 
   const validateField = React.useMemo(() => {
     if (

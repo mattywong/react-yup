@@ -27,7 +27,7 @@ const createTouchedReducer = <FormValues>() => {
         return action.payload(Object.assign({}, state));
       }
       case "touched/update/all": {
-        return action.payload;
+        return Object.assign({}, action.payload);
       }
       default:
         throw Error(
