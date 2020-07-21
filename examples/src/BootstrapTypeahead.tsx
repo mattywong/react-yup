@@ -35,26 +35,17 @@ const SCHEMA = Yup.object({
 
       return Yup.mixed().required();
     }),
-    firstName: Yup.string().required(),
-    gender: Yup.mixed()
-      .oneOf(["male", "female"] as const)
-      .required()
-      .defined(),
   }),
 }).defined();
 
-interface BootstrapTypeaheadProps {
-  form: {
-    location: {
-      id: number;
-      name: string;
-    } | null;
-  };
-}
-
 export const BootstrapTypeahead = () => {
   const [loading, setLoading] = React.useState(false);
-  const [options, setOptions] = React.useState([]);
+  const [options, setOptions] = React.useState([
+    {
+      id: 0,
+      name: "Brazil",
+    },
+  ]);
 
   const handleSearch = React.useMemo(() => {
     let timer: NodeJS.Timeout;
@@ -86,15 +77,8 @@ export const BootstrapTypeahead = () => {
     setValue,
     setTouched,
     validateForm,
-  } = useForm<Yup.InferType<typeof SCHEMA>>({
+  } = useForm({
     validationSchema: SCHEMA,
-    // defaultValues: {
-    //   form: {
-    //     location: {
-    //       id: 0,
-    //     },
-    //   },
-    // },
     defaultValues: {
       form: {
         location: {
@@ -142,6 +126,7 @@ export const BootstrapTypeahead = () => {
                 });
                 validateForm({ touch: false });
               }}
+              defaultInputValue="Brazil"
             />
             <input
               type="hidden"
@@ -154,8 +139,7 @@ export const BootstrapTypeahead = () => {
               value={((values.form?.location?.name as unknown) as string) || ""}
             />
           </div>
-          <pre>{JSON.stringify(errors, null, 2)}</pre>
-          <pre>{JSON.stringify(values, null, 2)}</pre>
+          <pre>{JSON.stringify({ touched, errors }, null, 2)}</pre>
           <button type="submit" className="btn btn-primary">
             Submit
           </button>

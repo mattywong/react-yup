@@ -1,12 +1,6 @@
 import * as React from "react";
 import whyDidYouRender from "@welldone-software/why-did-you-render";
 
-if (process.env.NODE_ENV !== "production") {
-  whyDidYouRender(React, {
-    trackAllPureComponents: true,
-  });
-}
-
 import * as ReactDOM from "react-dom";
 
 import {
@@ -17,6 +11,7 @@ import {
   Link,
 } from "react-router-dom";
 
+import { BasicFormExtended } from "./BasicFormExtended";
 import { BasicForm } from "./BasicForm";
 import { NestedForm } from "./NestedForm";
 import { CheckboxForm } from "./CheckboxForm";
@@ -26,18 +21,16 @@ import { BootstrapTypeahead } from "./BootstrapTypeahead";
 
 import { Success } from "./Success";
 
+if (process.env.NODE_ENV !== "production") {
+  whyDidYouRender(React, {
+    trackAllPureComponents: true,
+  });
+}
+
 const Container: React.FC<{}> = ({ children }) => {
   const [count, setCount] = React.useState(0);
 
-  React.useEffect(() => {
-    setCount((count) => count + 1);
-  }, []);
-  return (
-    <div className="container py-4">
-      <div>Render count: {count}</div>
-      {children}
-    </div>
-  );
+  return <div className="container py-4">{children}</div>;
 };
 
 const App = () => {
@@ -47,6 +40,9 @@ const App = () => {
         <ul className="list-unstyled list-inline">
           <li className="list-inline-item">
             <Link to="/basic">Basic</Link>
+          </li>
+          <li className="list-inline-item">
+            <Link to="/basic-extended">Basic Extended</Link>
           </li>
           <li className="list-inline-item">
             <Link to="/nested">Nested</Link>
@@ -69,6 +65,11 @@ const App = () => {
         <Route path="/basic">
           <Container>
             <BasicForm />
+          </Container>
+        </Route>
+        <Route path="/basic-extended">
+          <Container>
+            <BasicFormExtended />
           </Container>
         </Route>
         <Route path="/nested">

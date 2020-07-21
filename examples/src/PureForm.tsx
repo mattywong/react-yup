@@ -13,11 +13,8 @@ const SCHEMA = Yup.object().shape({
 });
 
 /**
- * PureForm will always trigger a render because of the useForm hook
- * you can see this by wrapping PureForm with React.memo
- * however <PureField /> will not rerender unless one of it's props changes
+ * <PureField /> will not rerender unless one of it's props changes
  */
-
 export const PureForm = () => {
   const {
     field,
@@ -34,7 +31,7 @@ export const PureForm = () => {
     return createSubmitHandler((v) => {
       console.log(v);
     });
-  }, []);
+  }, [createSubmitHandler]);
 
   return (
     <form onSubmit={handleSubmit}>
@@ -56,8 +53,10 @@ export const PureForm = () => {
         error={getError((e) => e.lastName)}
         touched={isTouched((t) => t.lastName)}
       />
-      <pre>{JSON.stringify(values)}</pre>
-      <button type="submit">Submit</button>
+      <pre>{JSON.stringify({ values }, null, 2)}</pre>
+      <button className="btn btn-primary" type="submit">
+        Submit
+      </button>
     </form>
   );
 };

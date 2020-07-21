@@ -64,33 +64,39 @@ interface PureFieldProps extends FieldProps {
   touched?: boolean;
 }
 
-const _PureField = <FormValues extends Record<string, unknown>>({
-  label,
-  name,
-  error,
-  touched,
-  ...rest
-}: PureFieldProps): JSX.Element => {
-  if (!name) {
-    throw Error("No name passed to Field");
+/**
+ * Memoized PureField component will only
+ * re-render when one of its props changes
+ */
+
+export const PureField = React.memo(
+  <FormValues extends Record<string, unknown>>({
+    label,
+    name,
+    error,
+    touched,
+    ...rest
+  }: PureFieldProps): JSX.Element => {
+    if (!name) {
+      throw Error("No name passed to Field");
+    }
+
+    React.useEffect(() => {
+      track("PureField");
+    }, []);
+
+    return (
+      <div className="form-group">
+        <label htmlFor={name}>{label}</label>
+        <input className="form-control" id={name} name={name} {...rest} />
+        {error && touched && (
+          <div className="invalid-feedback d-block mb-2">{error}</div>
+        )}
+      </div>
+    );
   }
+);
 
-  React.useEffect(() => {
-    track("PureField");
-  }, []);
-
-  return (
-    <div className="form-group">
-      <label htmlFor={name}>{label}</label>
-      <input className="form-control" id={name} name={name} {...rest} />
-      {error && touched && (
-        <div className="invalid-feedback d-block mb-2">{error}</div>
-      )}
-    </div>
-  );
-};
-
-export const PureField = React.memo(_PureField);
 PureField.whyDidYouRender = true;
 
 interface InputFieldProps

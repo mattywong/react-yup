@@ -34,12 +34,7 @@ export const NestedForm: React.FC<NestedFormProps> = ({ defaultValues }) => {
     field,
     FormProvider,
     values,
-    getValue,
-    getError,
-    isTouched,
-    touched,
-    errors,
-    setValue,
+
     setValues,
   } = useForm<FormValues>({
     validationSchema,
@@ -66,11 +61,6 @@ export const NestedForm: React.FC<NestedFormProps> = ({ defaultValues }) => {
         <button
           onClick={(e) => {
             setValues((v) => {
-              // v.form.address = {
-              //   number: 22,
-              //   street: "test",
-              // };
-
               v.form = {
                 ...v.form,
                 firstName: "test",

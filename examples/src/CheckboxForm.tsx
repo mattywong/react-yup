@@ -2,7 +2,6 @@ import * as React from "react";
 import { useForm, useFormBag } from "../../src/index";
 
 import * as Yup from "yup";
-import { Field } from "./Field";
 
 interface InputFieldProps
   extends React.DetailedHTMLProps<
@@ -51,6 +50,7 @@ export const CheckboxForm = () => {
     values,
     getValue,
     setValue,
+    isChecked,
     touched,
     errors,
   } = useForm<Yup.InferType<typeof SCHEMA>>({
@@ -179,7 +179,8 @@ export const CheckboxForm = () => {
             </div>
           </div>
         </fieldset>
-        <pre>{JSON.stringify(values)}</pre>
+        <pre>{JSON.stringify({ errors, touched, values }, null, 2)}</pre>
+
         <button className="btn btn-primary" type="submit">
           Submit
         </button>

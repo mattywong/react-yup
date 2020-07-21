@@ -18,26 +18,19 @@ const schema = Yup.object({
   }).defined(),
 }).defined();
 
-type FormValues = Yup.InferType<typeof schema>;
-
 export const AdvancedForm = () => {
   const { push } = useHistory();
   const {
     createSubmitHandler,
     field,
     FormProvider,
-    validateForm,
     values,
     errors,
     touched,
     isSubmitting,
-    setSubmitting,
-    setValue,
     setValues,
     getErrors,
-
-    resetErrors,
-  } = useForm<FormValues>({
+  } = useForm({
     validationSchema: schema,
     defaultValues: {
       form: {
@@ -52,22 +45,21 @@ export const AdvancedForm = () => {
   const handleSubmit = React.useMemo(() => {
     return createSubmitHandler((values) => {
       console.log(values);
-      // setSubmitting(false);
 
       // do things async
       return new Promise((res, rej) => {
         setTimeout(res, 3000);
       }).then((d) => {
-        // alert("Succes");
         push("/success");
       });
     });
-  }, [createSubmitHandler]);
+  }, [createSubmitHandler, push]);
 
   return (
     <FormProvider>
       <div>
         <button
+          className="btn btn-outline-primary"
           onClick={(e) => {
             setValues((v) => {
               v.form = {
@@ -85,14 +77,15 @@ export const AdvancedForm = () => {
             }, true);
           }}
         >
-          Fill form
-        </button>
+          Fill form with dummy data
+        </button>{" "}
         <button
+          className="btn btn-info"
           onClick={(e) => {
             console.log(getErrors());
           }}
         >
-          Log stats
+          Get errors
         </button>
       </div>
 
