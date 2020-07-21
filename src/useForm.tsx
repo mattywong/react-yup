@@ -448,11 +448,14 @@ export const useForm = <FormValues extends Record<string, unknown>>(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name } = e.target;
 
+      const isCheckboxArray = name.endsWith("[]");
+      const chkboxName = isCheckboxArray ? name.slice(0, -2) : name;
+
       setTouched((dispatch, getTouched) => {
         dispatch({
           type: "touched/update",
           payload: (touched) => {
-            set(touched, name, true);
+            set(touched, chkboxName, true);
             return touched;
           },
         });
