@@ -21,7 +21,6 @@ export const focusFirstError = (
 
     if (name && formErrorKeys[name]) {
       (el as HTMLElement).focus();
-      console.log(el);
       return true;
     }
 
