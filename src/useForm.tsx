@@ -21,7 +21,11 @@ interface UseFormHookOptions<FormValues extends Record<string, unknown>> {
 type CreateSubmitHandler<FormValues> = (
   onSuccess: (values: ValueState<FormValues>) => void,
   onError?:
-    | ((errors: ErrorState<FormValues>, values: ValueState<FormValues>) => void)
+    | ((
+        errors: ErrorState<FormValues>,
+        values: ValueState<FormValues>,
+        yupErrors: ValidationError
+      ) => void)
     | undefined
 ) => (event: React.FormEvent<HTMLFormElement>) => void;
 
@@ -671,7 +675,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
           }
 
           if (onError) {
-            return onError(errors, getValues());
+            return onError(errors, getValues(), yupErrors);
           }
 
           return;
