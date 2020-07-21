@@ -18,14 +18,6 @@ Additionally, you may run the examples in this repository to understand how it w
 
 ## Installation
 
-Setup initial .npmrc file in your project root to read from the @eduka Azure package registry
-
-You can find the setup guide:
-1. Go to Azure devops
-2. Click "Artifcats" link in the sidebar
-3. Click "npm"
-4. Follow setup instructions there
-
 ```
 yarn add yup react-yup
 ```
@@ -38,7 +30,8 @@ npm install yup react-yup
 ## Basic usage
 
 ```
-import { useForm } from 'react-yup';
+// react-yup exports two hooks
+import { useForm, useFormBag } from 'react-yup';
 import * as Yup from 'yup';
 
 const schema = Yup.object({
@@ -47,16 +40,43 @@ const schema = Yup.object({
 }).defined()
 
 
-type FormValues = Yup.InferType<typeof schema>
-
-
 const BasicForm = () => {
-    const { values, touched, errors, field, createSubmitHandler } = useForm<FormValues>();
+
+    // By providing a schema to validationSchema,
+    // Typescript will infer your form data and give you auto completion
+    // for values, touched, errors and some functions like setValues
+    const { values, touched, errors, field, createSubmitHandler, setValues } = useForm({
+        validationSchema: schema
+    });
+
+
+    const handleSubmit = React.useMemo(() => {
+        return createSubmitHandler(values => {
+            // form is valid and you have access to values
+
+            fetch("/register", {
+                method: "POST",
+                body: JSON.stringify(values)
+            }).then(res => {
+                if (res.ok) {
+                    return res.json();
+                }
+            })
+        }, (errors) => {
+            // form is invalid and you have access to errors
+            // this callback function is optional
+        });
+    }, [])
 
     return (
-        <form>
+        <form onSubmit={handleSubmit}>
+            {errors.firstName && touched.firstName && <p>{errors.firstName}</p>}
             <input type="text" name="firstName" value={values.firstName} {...field} />
+
+            {errors.lastName && touched.lastName && <p>{errors.lastName}</p>}
             <input type="text" name="lastName" value={values.lastName} {...field} />
+
+            <button type="submit>Submit</button>
         </form>
     );
 }
@@ -64,4 +84,4 @@ const BasicForm = () => {
 
 ## Typescript
 
-This package was built with Typescript and includes typings. If you provide a generic interface to `useForm`, you will get autocompletion of your schema when accessing properties in `touched`, `values`, `errors` etc.
+This package was built with Typescript and includes typings. When you provide a Yup schema to validationSchema, you will get autocompletion when accessing properties in `touched`, `values`, `errors` etc.
