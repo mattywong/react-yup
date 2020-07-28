@@ -518,6 +518,8 @@ export const useForm = <FormValues extends Record<string, unknown>>(
             } else {
               tempValue = value === "on" ? true : value;
             }
+          } else if (typeof curValue === "boolean") {
+            tempValue = checked;
           } else {
             if (checked) {
               tempValue = [curValue, value];

@@ -40,6 +40,7 @@ const SCHEMA = Yup.object({
       otherwise: Yup.string(),
     })
     .required(),
+  confirm: Yup.boolean(),
 }).defined();
 
 export const CheckboxForm = () => {
@@ -55,6 +56,9 @@ export const CheckboxForm = () => {
     errors,
   } = useForm<Yup.InferType<typeof SCHEMA>>({
     validationSchema: SCHEMA,
+    defaultValues: {
+      confirm: false,
+    },
   });
 
   const handleSubmit = React.useMemo(() => {
