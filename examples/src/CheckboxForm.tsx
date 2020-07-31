@@ -33,13 +33,14 @@ const InputField: React.FC<InputFieldProps> = (props) => {
 
 const SCHEMA = Yup.object({
   gender: Yup.array().of(Yup.string()).required(),
-  genderNoArray: Yup.mixed()
-    .when("isArray", {
-      is: (v) => Array.isArray(v),
-      then: Yup.array().of(Yup.string()),
-      otherwise: Yup.string(),
-    })
-    .required(),
+  genderNoArray: Yup.lazy((v) => {
+    if (Array.isArray(v)) {
+      return Yup.array().of(Yup.string());
+    }
+
+    return Yup.string();
+  }),
+  numbersArray: Yup.array().of(Yup.number()).required(),
   confirm: Yup.boolean(),
 }).defined();
 
@@ -54,7 +55,7 @@ export const CheckboxForm = () => {
     isChecked,
     touched,
     errors,
-  } = useForm<Yup.InferType<typeof SCHEMA>>({
+  } = useForm({
     validationSchema: SCHEMA,
     defaultValues: {
       confirm: false,
@@ -150,6 +151,48 @@ export const CheckboxForm = () => {
             </div>
           </div>
         </fieldset>
+
+        <fieldset>
+          <div className="row">
+            <legend className="col-form-label col-sm-2 pt-0">
+              Pick a number
+            </legend>
+            <div className="col-sm-10">
+              <div>
+                <InputField
+                  name="numbersArray[]"
+                  type="checkbox"
+                  id="numbersArray.1"
+                  value={1}
+                  label="One"
+                  {...field}
+                />
+                <InputField
+                  name="numbersArray[]"
+                  type="checkbox"
+                  id="numbersArray.2"
+                  value={2}
+                  label="Two"
+                  {...field}
+                />
+                <InputField
+                  name="numbersArray[]"
+                  type="checkbox"
+                  id="numbersArray.3"
+                  value={3}
+                  label="Three"
+                  {...field}
+                />
+              </div>
+              {errors.numbersArray && touched.numbersArray && (
+                <div className="invalid-feedback d-block mb-2">
+                  {errors.numbersArray}
+                </div>
+              )}
+            </div>
+          </div>
+        </fieldset>
+
         <fieldset className="form-group">
           <div className="row">
             <legend className="col-form-label col-sm-2 pt-0">
