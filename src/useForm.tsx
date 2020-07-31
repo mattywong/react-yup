@@ -539,7 +539,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
                 dispatch({
                   type: "values/update",
                   payload: (values) => {
-                    set(values, chkboxName, tempValue);
+                    set(values, chkboxName, value);
                     return values;
                   },
                 });
