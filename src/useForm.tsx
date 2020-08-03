@@ -54,7 +54,8 @@ type SetValues<FormValues> = (
 ) => void;
 
 type SetTouched<FormValues> = (
-  callback: (touched: TouchedState<FormValues>) => TouchedState<FormValues>
+  callback: (touched: TouchedState<FormValues>) => TouchedState<FormValues>,
+  shouldValidate?: boolean
 ) => void;
 
 interface ValidateFormOptions {
@@ -435,14 +436,19 @@ export const useForm = <FormValues extends Record<string, unknown>>(
 
   const setTouchedProxy = React.useMemo(() => {
     return (
-      callback: (touched: TouchedState<FormValues>) => TouchedState<FormValues>
+      callback: (touched: TouchedState<FormValues>) => TouchedState<FormValues>,
+      shouldValidate = false
     ) => {
       setTouched({
         type: "touched/update",
         payload: callback,
       });
+
+      if (shouldValidate) {
+        validateForm({ touch: false });
+      }
     };
-  }, [setTouched]);
+  }, [setTouched, validateForm]);
 
   const handleFieldOnBlur = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

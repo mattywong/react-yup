@@ -10,6 +10,7 @@ export type InnerValueState<T> = T extends
   | boolean
   | undefined
   | Function
+  | Date
   ? T // if primitive, leave as primitive
   : {
       [P in keyof T]?: InnerValueState<T[P]>;
