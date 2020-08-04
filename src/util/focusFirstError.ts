@@ -27,7 +27,7 @@ export const focusFirstError = (
       // redirect focus from focusMapper
       if (focusMapper && focusMapper[name]) {
         const el = document.querySelector(
-          `[name=${focusMapper[name]}]`
+          `${focusMapper[name]}`
         ) as HTMLElement;
 
         if (el) {
