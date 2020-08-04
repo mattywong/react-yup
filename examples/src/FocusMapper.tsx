@@ -8,6 +8,11 @@ const schema = Yup.object({
   lastName: Yup.string().required(),
 }).defined();
 
+const focusMapper = {
+  firstName: "input[name=pseudoFirstName]",
+  lastName: "#pseudoLastName",
+};
+
 export const FocusMapper = () => {
   const pseudoLastNameRef = React.useRef<HTMLInputElement>(null);
   // By providing a schema to validationSchema,
@@ -22,10 +27,7 @@ export const FocusMapper = () => {
     createSubmitHandler,
   } = useForm({
     validationSchema: schema,
-    focusMapper: {
-      firstName: "pseudoFirstName",
-      lastName: "pseudoLastName",
-    },
+    focusMapper: focusMapper,
   });
 
   const handleSubmit = React.useMemo(() => {
@@ -72,18 +74,29 @@ export const FocusMapper = () => {
           className="form-control"
           id="lastName"
           name="lastName"
-          value={values.lastName}
+          value={values.lastName || ""}
           {...field}
         />
       </div>
 
       <div>
-        <input ref={pseudoLastNameRef} name="pseudoLastName" />
+        <input id="pseudoLastName" />
       </div>
 
       <button className="btn btn-primary" type="submit">
         Submit
       </button>
+      <div>
+        <button
+          className="btn btn-primary"
+          type="button"
+          onClick={(e) => {
+            console.dir(e.target);
+          }}
+        >
+          Submit alt
+        </button>
+      </div>
     </form>
   );
 };

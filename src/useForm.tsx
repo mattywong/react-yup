@@ -28,7 +28,7 @@ type CreateSubmitHandler<FormValues> = (
         yupErrors: ValidationError
       ) => void)
     | undefined
-) => (event: React.FormEvent<HTMLFormElement>) => void;
+) => (event: React.FormEvent<HTMLElement>) => void;
 
 type Field = {
   onBlur: (
@@ -675,7 +675,8 @@ export const useForm = <FormValues extends Record<string, unknown>>(
     return (onSuccess, onError?) => (event) => {
       event.preventDefault();
 
-      const form = event.currentTarget;
+      const el = event.currentTarget;
+      const form = el.closest("form");
 
       setSubmitting(true);
 
