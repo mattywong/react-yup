@@ -2,7 +2,8 @@ import { ValidationError } from "yup";
 
 export const focusFirstError = (
   form: HTMLFormElement,
-  yupErrors: ValidationError
+  yupErrors: ValidationError,
+  focusMapper?: Record<string, string>
 ): void => {
   const formErrorKeys = yupErrors.inner.reduce((acc, cur) => {
     acc[cur.path] = true;
@@ -10,6 +11,7 @@ export const focusFirstError = (
   }, {} as Record<string, boolean>);
 
   const formEls = Array.from(form.elements);
+
   formEls.some((el) => {
     let name = el.attributes.getNamedItem("name")?.value;
 
@@ -18,8 +20,22 @@ export const focusFirstError = (
     }
 
     name = name.endsWith("[]") ? name.slice(0, -2) : name;
+    // console.log(name);
+    // console.log(focusMapper[name]);
 
     if (name && formErrorKeys[name]) {
+      // redirect focus from focusMapper
+      if (focusMapper && focusMapper[name]) {
+        const el = document.querySelector(
+          `[name=${focusMapper[name]}]`
+        ) as HTMLElement;
+
+        if (el) {
+          el.focus();
+          return true;
+        }
+      }
+
       (el as HTMLElement).focus();
       return true;
     }

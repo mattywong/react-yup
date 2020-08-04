@@ -16,6 +16,7 @@ interface UseFormHookOptions<FormValues extends Record<string, unknown>> {
   defaultTouched?: TouchedState<FormValues>;
   validationSchema?: Schema<FormValues>;
   submitFocusError?: boolean;
+  focusMapper?: Parameters<typeof focusFirstError>[2];
 }
 
 type CreateSubmitHandler<FormValues> = (
@@ -136,6 +137,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
     defaultTouched,
     validationSchema,
     submitFocusError = true,
+    focusMapper,
   } = options || {};
 
   const { getValues, setValues } = useValues<FormValues>({
@@ -682,7 +684,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
           setSubmitting(false);
 
           if (submitFocusError) {
-            focusFirstError(form, yupErrors);
+            focusFirstError(form, yupErrors, focusMapper);
           }
 
           if (onError) {
@@ -695,7 +697,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
         return onSuccess(values);
       });
     };
-  }, [validateForm, submitFocusError, getValues]);
+  }, [validateForm, submitFocusError, focusMapper, getValues]);
 
   const formBag: FormBagContext<FormValues> = React.useMemo(() => {
     if (

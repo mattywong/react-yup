@@ -18,6 +18,7 @@ import { CheckboxForm } from "./CheckboxForm";
 import { AdvancedForm } from "./AdvancedForm";
 import { PureForm } from "./PureForm";
 import { BootstrapTypeahead } from "./BootstrapTypeahead";
+import { FocusMapper } from "./FocusMapper";
 
 import { Success } from "./Success";
 
@@ -62,6 +63,11 @@ const App = () => {
         </ul>
       </nav>
       <Switch>
+        <Route path="/focus-mapper">
+          <Container>
+            <FocusMapper />
+          </Container>
+        </Route>
         <Route path="/basic">
           <Container>
             <BasicForm />
