@@ -321,7 +321,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
     return (
       name: string,
       values: ValueState<FormValues>,
-      shouldTouch = true
+      shouldTouch = false
     ) => {
       return new Promise((resolve, reject) => {
         if (shouldTouch) {
