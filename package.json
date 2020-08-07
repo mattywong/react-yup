@@ -1,6 +1,6 @@
 {
   "name": "react-yup",
-  "version": "1.9.2",
+  "version": "1.10.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "sideEffects": false,
