@@ -278,12 +278,22 @@ export const useForm = <FormValues extends Record<string, unknown>>(
 
             const nextTouched = getTouched();
 
+            const pathCache: Record<string, boolean> = {};
+
             const formErrors = errors.inner.reduce((acc, cur) => {
+              if (pathCache[cur.path]) {
+                // there can be multiple errors for one field,
+                // so skip if message has already been set for cur.path
+                return acc;
+              }
+
               set(acc, cur.path, cur.message);
 
               if (touch) {
                 set(nextTouched, cur.path, true);
               }
+
+              pathCache[cur.path] = true;
 
               return acc;
             }, {} as ErrorState<FormValues>);
@@ -384,7 +394,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
             setErrors({
               type: "errors/update",
               payload: (errors) => {
-                set(errors, name, error.message);
+                set(errors, name, error.errors[0]);
                 return errors;
               },
             });

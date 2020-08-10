@@ -10,8 +10,8 @@ import * as Yup from "yup";
 
 // Define your Yup schema
 const schema = Yup.object({
-  firstName: Yup.string().required(),
-  lastName: Yup.string(),
+  firstName: Yup.string().required().min(2),
+  lastName: Yup.string().required().min(1),
 }).defined();
 
 export const BasicForm = () => {
