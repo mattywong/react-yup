@@ -54,10 +54,14 @@ type SetValues<FormValues> = (
   shouldValidate?: boolean
 ) => void;
 
-type SetTouched<FormValues> = (
-  callback: (touched: TouchedState<FormValues>) => TouchedState<FormValues>,
-  shouldValidate?: boolean
-) => void;
+type SetTouched<FormValues> = {
+  (
+    callback: (touched: TouchedState<FormValues>) => TouchedState<FormValues>,
+    shouldValidate?: boolean,
+    _?: never
+  ): void;
+  (name: string, value: boolean, shouldValidate?: boolean): void;
+};
 
 interface ValidateFormOptions {
   touch?: boolean;
@@ -447,19 +451,50 @@ export const useForm = <FormValues extends Record<string, unknown>>(
   }, [setValues, validateForm]);
 
   const setTouchedProxy = React.useMemo(() => {
-    return (
+    function _setTouched(
       callback: (touched: TouchedState<FormValues>) => TouchedState<FormValues>,
-      shouldValidate = false
-    ) => {
-      setTouched({
-        type: "touched/update",
-        payload: callback,
-      });
+      shouldValidate?: boolean,
+      _?: never
+    ): void;
+    function _setTouched(
+      name: string,
+      value: boolean,
+      shouldValidate?: boolean
+    ): void;
+    function _setTouched(x: any, y: boolean, z?: boolean) {
+      if (typeof x === "function") {
+        setTouched({
+          type: "touched/update",
+          payload: x,
+        });
 
-      if (shouldValidate) {
-        validateForm({ touch: false });
+        if (y) {
+          validateForm({ touch: false });
+        }
+
+        return;
       }
-    };
+
+      if (typeof x === "string") {
+        setTouched((dispatch, getTouched) => {
+          dispatch({
+            type: "touched/update",
+            payload: (touched) => {
+              set(touched, x, y);
+              return touched;
+            },
+          });
+        });
+
+        if (z) {
+          validateForm({ touch: false });
+        }
+
+        return;
+      }
+    }
+
+    return _setTouched;
   }, [setTouched, validateForm]);
 
   const handleFieldOnBlur = React.useCallback(

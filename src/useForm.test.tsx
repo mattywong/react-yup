@@ -30,7 +30,7 @@ test("useForm hook doesn't crash", () => {
 describe("validation errors", () => {
   test("yup integration working and errors successfully show", async () => {
     const { result, waitForNextUpdate } = renderHook(() =>
-      useForm<Yup.InferType<typeof SCHEMA>>({
+      useForm({
         validationSchema: SCHEMA,
       })
     );
@@ -43,12 +43,14 @@ describe("validation errors", () => {
 
     await waitForNextUpdate();
 
-    expect(result.current.errors.firstName).toBe("firstName must be defined");
+    expect(result.current.errors.firstName).toBe(
+      "firstName is a required field"
+    );
   });
 
   test("resetErrors() works correctly", async () => {
     const { result, waitForNextUpdate } = renderHook(() =>
-      useForm<Yup.InferType<typeof SCHEMA>>({
+      useForm({
         validationSchema: SCHEMA,
       })
     );
@@ -61,7 +63,9 @@ describe("validation errors", () => {
 
     await waitForNextUpdate();
 
-    expect(result.current.errors.firstName).toBe("firstName must be defined");
+    expect(result.current.errors.firstName).toBe(
+      "firstName is a required field"
+    );
 
     act(() => {
       result.current.resetErrors();
@@ -74,7 +78,7 @@ describe("validation errors", () => {
 describe("useValues", () => {
   test("useForm().setValues works correctly ", () => {
     const { result } = renderHook(() =>
-      useForm<Yup.InferType<typeof SCHEMA>>({
+      useForm({
         validationSchema: SCHEMA,
       })
     );
@@ -91,7 +95,7 @@ describe("useValues", () => {
 
   test("useForm().setValue works correctly ", () => {
     const { result } = renderHook(() =>
-      useForm<Yup.InferType<typeof SCHEMA>>({
+      useForm({
         validationSchema: SCHEMA,
       })
     );
@@ -105,7 +109,7 @@ describe("useValues", () => {
 
   test("useForm().getValues works correctly ", () => {
     const { result } = renderHook(() =>
-      useForm<Yup.InferType<typeof SCHEMA>>({
+      useForm({
         validationSchema: SCHEMA,
         defaultValues: {
           firstName: "joe",
@@ -120,7 +124,7 @@ describe("useValues", () => {
 
   test("useForm().getValue works correctly ", () => {
     const { result } = renderHook(() =>
-      useForm<Yup.InferType<typeof SCHEMA>>({
+      useForm({
         validationSchema: SCHEMA,
         defaultValues: {
           firstName: "joe",
@@ -135,9 +139,9 @@ describe("useValues", () => {
 });
 
 describe("useForm touched setters", () => {
-  test("useForm().setTouched works correctly ", () => {
+  test("useForm().setTouched works correctly with callback", () => {
     const { result } = renderHook(() =>
-      useForm<Yup.InferType<typeof SCHEMA>>({
+      useForm({
         validationSchema: SCHEMA,
       })
     );
@@ -153,12 +157,34 @@ describe("useForm touched setters", () => {
 
     expect(result.current.touched.firstName).toBe(true);
   });
+
+  test("useForm().setTouched works correctly with string name and boolean value", () => {
+    const { result } = renderHook(() =>
+      useForm({
+        validationSchema: SCHEMA,
+      })
+    );
+
+    expect(result.current.touched.firstName).toBe(undefined);
+
+    act(() => {
+      result.current.setTouched("firstName", true);
+    });
+
+    expect(result.current.touched.firstName).toBe(true);
+
+    act(() => {
+      result.current.setTouched("firstName", false);
+    });
+
+    expect(result.current.touched.firstName).toBe(false);
+  });
 });
 
 describe("useForm isChecked method works correctly", () => {
   test("isChecked with name argument", () => {
     const { result } = renderHook(() =>
-      useForm<Yup.InferType<typeof SCHEMA>>({
+      useForm({
         validationSchema: SCHEMA,
         defaultValues: {
           agreeToTos: true,
@@ -171,7 +197,7 @@ describe("useForm isChecked method works correctly", () => {
 
   test("isChecked with name argument and value as primitive", () => {
     const { result } = renderHook(() =>
-      useForm<Yup.InferType<typeof SCHEMA>>({
+      useForm({
         validationSchema: SCHEMA,
         defaultValues: {
           gender: "male",
@@ -185,7 +211,7 @@ describe("useForm isChecked method works correctly", () => {
 
   test("isChecked with value as an array, with name argument and value as primitive", () => {
     const { result } = renderHook(() =>
-      useForm<Yup.InferType<typeof SCHEMA>>({
+      useForm({
         validationSchema: SCHEMA,
         defaultValues: {
           colours: ["red", "orange"],
@@ -200,7 +226,7 @@ describe("useForm isChecked method works correctly", () => {
 
   test("isChecked with name argument and value as callback function", () => {
     const { result } = renderHook(() =>
-      useForm<Yup.InferType<typeof SCHEMA>>({
+      useForm({
         validationSchema: SCHEMA,
         defaultValues: {
           gender: "male",
@@ -217,7 +243,7 @@ describe("useForm isChecked method works correctly", () => {
 
   test("isChecked with name[] argument and value as callback function", () => {
     const { result } = renderHook(() =>
-      useForm<Yup.InferType<typeof SCHEMA>>({
+      useForm({
         validationSchema: SCHEMA,
         defaultValues: {
           colours: ["red", "orange"],
