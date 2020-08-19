@@ -18,6 +18,7 @@ import { CheckboxForm } from "./CheckboxForm";
 import { AdvancedForm } from "./AdvancedForm";
 import { PureForm } from "./PureForm";
 import { BootstrapTypeahead } from "./BootstrapTypeahead";
+import { TypeaheadArray } from "./TypeaheadArray";
 import { FocusMapper } from "./FocusMapper";
 
 import { Success } from "./Success";
@@ -59,6 +60,9 @@ const App = () => {
           </li>
           <li className="list-inline-item">
             <Link to="/pure-form">Pure form</Link>
+          </li>
+          <li className="list-inline-item">
+            <Link to="/typeahead-array">Typeahead Array</Link>
           </li>
         </ul>
       </nav>
@@ -107,6 +111,11 @@ const App = () => {
         <Route path="/typeahead">
           <Container>
             <BootstrapTypeahead />
+          </Container>
+        </Route>
+        <Route path="/typeahead-array">
+          <Container>
+            <TypeaheadArray />
           </Container>
         </Route>
         <Route path="/pure-form">
