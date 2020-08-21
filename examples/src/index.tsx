@@ -13,6 +13,7 @@ import {
 
 import { BasicFormExtended } from "./BasicFormExtended";
 import { BasicForm } from "./BasicForm";
+import { LoginForm } from "./LoginForm";
 import { NestedForm } from "./NestedForm";
 import { CheckboxForm } from "./CheckboxForm";
 import { AdvancedForm } from "./AdvancedForm";
@@ -70,6 +71,11 @@ const App = () => {
         <Route path="/focus-mapper">
           <Container>
             <FocusMapper />
+          </Container>
+        </Route>
+        <Route path="/login">
+          <Container>
+            <LoginForm />
           </Container>
         </Route>
         <Route path="/basic">
