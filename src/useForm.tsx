@@ -105,6 +105,7 @@ interface FormBagContext<FormValues> {
   };
   isChecked: IsChecked;
   setSubmitting: (isSubmitting: boolean) => void;
+  setDirty: (isDirty: boolean) => void;
   setTouched: SetTouched<FormValues>;
   setValue: SetValue;
   setValues: SetValues<FormValues>;
@@ -749,7 +750,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
     };
   }, [validateForm, submitFocusError, focusMapper, getValues]);
 
-  const formBag: FormBagContext<FormValues> = React.useMemo(() => {
+  const formBag = React.useMemo(() => {
     if (
       process.env.NODE_ENV !== "production" &&
       process.env.NODE_ENV !== "test"
@@ -768,13 +769,14 @@ export const useForm = <FormValues extends Record<string, unknown>>(
       isChecked,
       isTouched,
       resetErrors,
+      setDirty,
       setSubmitting,
       setTouched: setTouchedProxy,
       setValue,
       setValues: setValuesProxy,
       validateForm,
       validateField,
-    };
+    } as FormBagContext<FormValues>;
   }, [
     createSubmitHandler,
     field,
@@ -786,6 +788,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
     isChecked,
     isTouched,
     resetErrors,
+    setDirty,
     setSubmitting,
     setTouchedProxy,
     setValue,
