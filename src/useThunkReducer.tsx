@@ -14,16 +14,11 @@ export const useThunkReducer = <State, Actions>(
    * and object.assign only does a shallow copy,
    * so potentially props could be mutated unintendedly
    * if the initial state is coming from props.
-   *
-   * We memoize the cloneDeep result before sending it to
-   * useState as otherwise cloneDeep will run every render
-   * even though its result is discarded by React
    * */
-  const internalInitialState = React.useMemo(() => {
-    return cloneDeep(initialState);
-  }, []);
 
-  const [$state, $setState] = React.useState(internalInitialState);
+  const [$state, $setState] = React.useState(() => {
+    return cloneDeep(initialState);
+  });
 
   const stateRef = React.useRef<State>($state);
 

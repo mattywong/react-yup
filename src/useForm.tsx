@@ -125,6 +125,7 @@ interface UseFormHookResult<FormValues> extends FormBagContext<FormValues> {
   touched: TouchedState<FormValues>;
   isValid: boolean;
   isSubmitting: boolean;
+  isDirty: boolean;
   FormProvider: ({ children }: { children: React.ReactNode }) => JSX.Element;
 }
 
@@ -157,6 +158,8 @@ export const useForm = <FormValues extends Record<string, unknown>>(
   });
 
   const [submitting, setSubmitting] = React.useState(false);
+
+  const [dirty, setDirty] = React.useState(false);
 
   const getValue = React.useMemo(() => {
     function getValue(name: string): unknown;
@@ -530,6 +533,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
       >
     ) => {
       const { name, type, value } = e.target;
+      setDirty(true);
 
       switch (type) {
         case "checkbox": {
@@ -813,6 +817,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
     touched: getTouched(),
     isValid: Object.keys(getErrors()).length === 0,
     isSubmitting: submitting,
+    isDirty: dirty,
     FormProvider,
   }) as UseFormHookResult<FormValues>;
 };
