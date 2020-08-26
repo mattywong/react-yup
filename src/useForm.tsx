@@ -651,31 +651,14 @@ export const useForm = <FormValues extends Record<string, unknown>>(
           break;
         }
 
-        // select element- single -> can use normal input[type=text] handler
-        case "select-one":
-        case "email":
-        case "color":
-        case "date":
-        case "datetime-local":
-        case "time":
-        case "month":
-        case "password":
-        case "search":
-        case "tel":
-        case "url":
-        case "week":
-        case "radio":
-        case "number":
-        case "range":
-        case "text":
-        case "textarea":
-        default:
+        case "radio": {
           setValues((dispatch, getValues) => {
             const draft = getValues();
             set(draft, name, value);
 
             validateField(name, draft)
               .then((value) => {
+                console.log(value);
                 dispatch({
                   type: "values/update",
                   payload: (values) => {
@@ -695,6 +678,58 @@ export const useForm = <FormValues extends Record<string, unknown>>(
               });
           });
           break;
+        }
+        case "select-one":
+        case "email":
+        case "color":
+        case "date":
+        case "datetime-local":
+        case "time":
+        case "month":
+        case "password":
+        case "search":
+        case "tel":
+        case "url":
+        case "week":
+        case "number":
+        case "range":
+        case "text":
+        case "textarea":
+        default: {
+          setValues((dispatch, getValues) => {
+            const draft = getValues();
+            set(draft, name, value);
+            dispatch({
+              type: "values/update",
+              payload: (values) => {
+                set(values, name, value);
+                return values;
+              },
+            });
+
+            validateField(name, draft)
+              .then((value) => {
+                // console.log(value);
+                // dispatch({
+                //   type: "values/update",
+                //   payload: (values) => {
+                //     set(values, name, value);
+                //     return values;
+                //   },
+                // });
+              })
+              .catch((err) => {
+                // dispatch({
+                //   type: "values/update",
+                //   payload: (values) => {
+                //     set(values, name, value);
+                //     return values;
+                //   },
+                // });
+              });
+          });
+          break;
+        }
       }
     },
     [setValues, getValues, validateField]

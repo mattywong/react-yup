@@ -30,6 +30,7 @@ export const BasicFormExtended = () => {
       confirmNumber: Yup.number()
         .oneOf([Yup.ref("number")])
         .defined(),
+      freeNumber: Yup.number(),
     }).defined();
   }, [shouldValidate]);
 
@@ -224,6 +225,10 @@ export const BasicFormExtended = () => {
 
         <div className="form-group">
           <Field name="confirmNumber" label="Confirm number" />
+        </div>
+
+        <div className="form-group">
+          <Field name="freeNumber" label="Free number" />
         </div>
 
         <div className="form-group">
