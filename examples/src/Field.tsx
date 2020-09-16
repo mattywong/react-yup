@@ -122,3 +122,31 @@ export const FieldCheck: React.FC<InputFieldProps> = (props) => {
     </div>
   );
 };
+
+interface InputFieldProps
+  extends React.DetailedHTMLProps<
+    React.InputHTMLAttributes<HTMLInputElement>,
+    HTMLInputElement
+  > {
+  label: React.ReactNode;
+}
+
+export const InputField: React.FC<InputFieldProps> = (props) => {
+  const { label, ...rest } = props;
+  const { value, id, name } = rest;
+
+  const { isChecked } = useFormBag();
+
+  return (
+    <div className="form-check">
+      <input
+        className="form-check-input"
+        {...rest}
+        checked={isChecked(name, value)}
+      />
+      <label className="form-check-label" htmlFor={id}>
+        {label}
+      </label>
+    </div>
+  );
+};

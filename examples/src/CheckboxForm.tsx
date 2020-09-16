@@ -1,35 +1,9 @@
 import * as React from "react";
 import { useForm, useFormBag } from "../../src/index";
 
+import { InputField } from "./Field";
+
 import * as Yup from "yup";
-
-interface InputFieldProps
-  extends React.DetailedHTMLProps<
-    React.InputHTMLAttributes<HTMLInputElement>,
-    HTMLInputElement
-  > {
-  label: React.ReactNode;
-}
-
-const InputField: React.FC<InputFieldProps> = (props) => {
-  const { label, ...rest } = props;
-  const { value, id, name } = rest;
-
-  const { isChecked } = useFormBag();
-
-  return (
-    <div className="form-check">
-      <input
-        className="form-check-input"
-        {...rest}
-        checked={isChecked(name, value)}
-      />
-      <label className="form-check-label" htmlFor={id}>
-        {label}
-      </label>
-    </div>
-  );
-};
 
 const SCHEMA = Yup.object({
   gender: Yup.array().of(Yup.string()).required(),

@@ -3,6 +3,8 @@ import * as Yup from "yup";
 
 import { AsyncTypeahead } from "react-bootstrap-typeahead";
 
+import { InputField } from "./Field";
+
 import { useForm } from "../../src";
 
 const SCHEMA = Yup.object({
@@ -12,6 +14,7 @@ const SCHEMA = Yup.object({
       state: Yup.string().required(),
     })
   ),
+  gender: Yup.number(),
 });
 
 const DUMMY_LOCATIONS = [
@@ -96,6 +99,7 @@ export const TypeaheadArray = () => {
     setValue,
     setValues,
     setTouched,
+    FormProvider,
   } = useForm({
     validationSchema: SCHEMA,
   });
@@ -131,7 +135,7 @@ export const TypeaheadArray = () => {
   };
 
   return (
-    <>
+    <FormProvider>
       <pre>
         {JSON.stringify(
           {
@@ -185,9 +189,51 @@ export const TypeaheadArray = () => {
           <button type="button" onClick={addLocation}>
             Add location
           </button>{" "}
-          <button type="submit">Submit</button>
         </fieldset>
+
+        <fieldset className="form-group">
+          <div className="row">
+            <legend className="col-form-label col-sm-2 pt-0">
+              Gender
+            </legend>
+            <div className="col-sm-10">
+              <div>
+                <InputField
+                  name="gender"
+                  type="radio"
+                  id="male"
+                  value={1}
+                  label="Male"
+                  {...field}
+                />
+                <InputField
+                  name="gender"
+                  type="radio"
+                  id="female"
+                  value={2}
+                  label="Female"
+                  {...field}
+                />
+                <InputField
+                  name="gender"
+                  type="radio"
+                  id="unknown"
+                  value={3}
+                  label="Prefer not to say"
+                  {...field}
+                />
+              </div>
+              {errors.gender && touched.gender && (
+                <div className="invalid-feedback d-block mb-2">
+                  {errors.gender}
+                </div>
+              )}
+            </div>
+          </div>
+        </fieldset>
+
+        <button type="submit">Submit</button>
       </form>
-    </>
+    </FormProvider>
   );
 };
