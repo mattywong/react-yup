@@ -666,3 +666,44 @@ describe("FormBag field works correctly", () => {
     );
   });
 });
+
+describe("useForm default props allow a function argument", () => {
+  test("defaultValues allows a function as its value", () => {
+    const { result } = renderHook(() =>
+      useForm({
+        validationSchema: SCHEMA,
+        defaultValues: () => ({
+          firstName: "success",
+        }),
+      })
+    );
+
+    expect(result.current.values["firstName"]).toBe("success");
+  });
+
+  test("defaultErrors allows a function as its value", () => {
+    const { result } = renderHook(() =>
+      useForm({
+        validationSchema: SCHEMA,
+        defaultErrors: () => ({
+          firstName: "Error",
+        }),
+      })
+    );
+
+    expect(result.current.errors["firstName"]).toBe("Error");
+  });
+
+  test("defaultTouched allows a function as its value", () => {
+    const { result } = renderHook(() =>
+      useForm({
+        validationSchema: SCHEMA,
+        defaultTouched: () => ({
+          firstName: true,
+        }),
+      })
+    );
+
+    expect(result.current.touched["firstName"]).toBe(true);
+  });
+});

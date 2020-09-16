@@ -3,7 +3,7 @@ import { ValidationError, Schema } from "yup";
 
 import { get, set } from "lodash-es";
 
-import { useValues, ValueState, InnerValueState } from "./useValues";
+import { useValues, ValueState } from "./useValues";
 import { useTouched, TouchedState } from "./useTouched";
 import { useErrors, ErrorState } from "./useErrors";
 
@@ -11,9 +11,9 @@ import { track } from "./util/tracker";
 import { focusFirstError } from "./util/focusFirstError";
 
 interface UseFormHookOptions<FormValues extends Record<string, unknown>> {
-  defaultValues?: ValueState<FormValues>;
-  defaultErrors?: ErrorState<FormValues>;
-  defaultTouched?: TouchedState<FormValues>;
+  defaultValues?: ValueState<FormValues> | (() => ValueState<FormValues>);
+  defaultErrors?: ErrorState<FormValues> | (() => ErrorState<FormValues>);
+  defaultTouched?: TouchedState<FormValues> | (() => TouchedState<FormValues>);
   validationSchema?: Schema<FormValues>;
   submitFocusError?: boolean;
   focusMapper?: Parameters<typeof focusFirstError>[2];

@@ -14,7 +14,7 @@ type TouchedActions<FormValues> =
     };
 
 interface UseTouchedHookProps<FormValues> {
-  defaultTouched?: TouchedState<FormValues>;
+  defaultTouched?: TouchedState<FormValues> | (() => TouchedState<FormValues>);
 }
 
 const createTouchedReducer = <FormValues>() => {
@@ -42,7 +42,14 @@ export const useTouched = <FormValues>({
 }: UseTouchedHookProps<FormValues>) => {
   const [getTouched, setTouched] = useThunkReducer(
     createTouchedReducer(),
-    defaultTouched
+    {},
+    (initialState) => {
+      if (typeof defaultTouched === "function") {
+        return defaultTouched();
+      }
+
+      return defaultTouched || initialState;
+    }
   );
 
   return {

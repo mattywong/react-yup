@@ -1,9 +1,5 @@
 import { useThunkReducer } from "./useThunkReducer";
 
-// export type ValueState<T> = {
-//   [Key in keyof T]?: ValueState<T[Key]>;
-// };
-
 export type InnerValueState<T> = T extends
   | string
   | number
@@ -26,7 +22,7 @@ type ValuesActions<FormValues> = {
 };
 
 interface UseValuesHookProps<FormValues> {
-  defaultValues?: ValueState<FormValues>;
+  defaultValues?: ValueState<FormValues> | (() => ValueState<FormValues>);
 }
 
 const createValuesReducer = <FormValues>() => {
@@ -46,7 +42,14 @@ export const useValues = <FormValues>({
 }: UseValuesHookProps<FormValues>) => {
   const [getValues, setValues] = useThunkReducer(
     createValuesReducer(),
-    defaultValues
+    {},
+    (initialState) => {
+      if (typeof defaultValues === "function") {
+        return defaultValues();
+      }
+
+      return defaultValues || initialState;
+    }
   );
 
   return {

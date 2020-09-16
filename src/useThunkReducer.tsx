@@ -1,10 +1,18 @@
 import * as React from "react";
 import { cloneDeep } from "lodash-es";
 
+type ThunkDispatch<State, Actions> = (
+  dispatch: React.Dispatch<Actions>,
+  getState: () => State
+) => void;
+
 export const useThunkReducer = <State, Actions>(
   reducer: React.Reducer<State, Actions>,
-  initialState: State
-) => {
+  initialState: State,
+  initialiser?: (initialState: State) => State
+): Readonly<
+  [() => State, (action: Actions | ThunkDispatch<State, Actions>) => void]
+> => {
   const internalReducer = React.useMemo(() => {
     return reducer;
   }, []);
@@ -17,6 +25,9 @@ export const useThunkReducer = <State, Actions>(
    * */
 
   const [$state, $setState] = React.useState(() => {
+    if (initialiser && typeof initialiser === "function") {
+      return cloneDeep(initialiser(initialState));
+    }
     return cloneDeep(initialState);
   });
 
@@ -39,19 +50,12 @@ export const useThunkReducer = <State, Actions>(
     };
   }, [internalReducer, getState]);
 
-  type GetState = () => State;
-
-  type ThunkDispatch = (
-    dispatch: React.Dispatch<Actions>,
-    getState: GetState
-  ) => void;
-
-  type DispatchArguments = Actions | ThunkDispatch;
+  type DispatchArguments = Actions | ThunkDispatch<State, Actions>;
 
   const dispatch = React.useMemo(() => {
     return (action: DispatchArguments) => {
       if (typeof action === "function") {
-        return (action as ThunkDispatch)(dispatch, getState);
+        return (action as ThunkDispatch<State, Actions>)(dispatch, getState);
       }
 
       return setState(reduce(action));

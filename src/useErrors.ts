@@ -17,7 +17,7 @@ type ErrorsActions<FormValues> =
     };
 
 interface UseErrorsHookProps<FormValues> {
-  defaultErrors?: ErrorState<FormValues>;
+  defaultErrors?: ErrorState<FormValues> | (() => ErrorState<FormValues>);
 }
 
 const createErrorsReducer = <FormValues>() => {
@@ -42,7 +42,14 @@ export const useErrors = <FormValues>({
 }: UseErrorsHookProps<FormValues>) => {
   const [getErrors, setErrors] = useThunkReducer(
     createErrorsReducer(),
-    defaultErrors
+    {},
+    (initialState) => {
+      if (typeof defaultErrors === "function") {
+        return defaultErrors();
+      }
+
+      return defaultErrors || initialState;
+    }
   );
 
   return {
