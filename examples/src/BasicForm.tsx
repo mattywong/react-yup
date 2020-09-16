@@ -69,7 +69,7 @@ export const BasicForm = () => {
           className="form-control"
           id="lastName"
           name="lastName"
-          value={values.lastName}
+          value={values.lastName || ""}
           {...field}
         />
       </div>
