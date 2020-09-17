@@ -2,10 +2,12 @@ import { ValidationError } from "yup";
 
 import { get, set } from "lodash-es";
 
+type FocusMapperCallback = (yupErrors: ValidationError) => HTMLElement;
+
 export const focusFirstError = (
   form: HTMLFormElement,
   yupErrors: ValidationError,
-  focusMapper?: Record<string, string>
+  focusMapper?: Record<string, string | FocusMapperCallback>
 ): void => {
   const formErrorKeys = yupErrors.inner.reduce((acc, cur) => {
     set(acc, cur.path, true);
@@ -26,9 +28,16 @@ export const focusFirstError = (
     if (name && get(formErrorKeys, name)) {
       // redirect focus from focusMapper
       if (focusMapper && focusMapper[name]) {
-        const el = document.querySelector(
-          `${focusMapper[name]}`
-        ) as HTMLElement;
+        let el;
+
+        switch (typeof focusMapper[name]) {
+          case "string":
+            el = document.querySelector(`${focusMapper[name]}`) as HTMLElement;
+            break;
+          case "function":
+            el = (focusMapper[name] as FocusMapperCallback)(yupErrors);
+            break;
+        }
 
         if (el) {
           el.focus();

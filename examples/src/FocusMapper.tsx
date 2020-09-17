@@ -14,7 +14,6 @@ const focusMapper = {
 };
 
 export const FocusMapper = () => {
-  const pseudoLastNameRef = React.useRef<HTMLInputElement>(null);
   // By providing a schema to validationSchema,
   // Typescript will infer your form data and give you auto completion
   // for values, touched, errors and some functions like setValues
