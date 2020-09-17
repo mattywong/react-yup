@@ -10,7 +10,11 @@ const schema = Yup.object({
 
 const focusMapper = {
   firstName: "input[name=pseudoFirstName]",
-  lastName: "#pseudoLastName",
+  // lastName: "#pseudoLastName",
+  lastName: (error: Yup.ValidationError) => {
+    console.log(error);
+    return document.getElementById("pseudoLastName");
+  },
 };
 
 export const FocusMapper = () => {

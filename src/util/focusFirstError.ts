@@ -2,7 +2,9 @@ import { ValidationError } from "yup";
 
 import { get, set } from "lodash-es";
 
-type FocusMapperCallback = (yupErrors: ValidationError) => HTMLElement;
+type FocusMapperCallback = (
+  yupErrors: ValidationError
+) => HTMLElement | undefined;
 
 export const focusFirstError = (
   form: HTMLFormElement,
@@ -12,7 +14,7 @@ export const focusFirstError = (
   const formErrorKeys = yupErrors.inner.reduce((acc, cur) => {
     set(acc, cur.path, true);
     return acc;
-  }, {} as Record<string, unknown>);
+  }, {} as Record<string, boolean>);
 
   const formEls = Array.from(form.elements);
 
