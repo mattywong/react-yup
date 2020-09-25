@@ -32,7 +32,7 @@ type CreateSubmitHandler<FormValues> = (
 
 type Field = {
   onBlur: (
-    e: React.ChangeEvent<
+    e: React.FocusEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => void;
@@ -502,7 +502,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
   }, [setTouched, validateForm]);
 
   const handleFieldOnBlur = React.useCallback(
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name } = e.target;
 
       const isCheckboxArray = name.endsWith("[]");
