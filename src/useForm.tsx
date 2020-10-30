@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ValidationError, Schema } from "yup";
+import { ValidationError, Schema, reach } from "yup";
 
 import { get, set } from "lodash-es";
 
@@ -542,7 +542,13 @@ export const useForm = <FormValues extends Record<string, unknown>>(
 
           const isCheckboxArray = name.endsWith("[]");
           const chkboxName = isCheckboxArray ? name.slice(0, -2) : name;
+
+          const schema = reach(validationSchema, chkboxName);
+          console.log(schema.type);
+
           const curValue: any | any[] = get(getValues(), chkboxName);
+
+          console.log(curValue);
 
           let tempValue: any;
 
@@ -560,10 +566,10 @@ export const useForm = <FormValues extends Record<string, unknown>>(
 
             switch (tempValue.length) {
               case 0:
-                tempValue = undefined;
+                tempValue = schema.type === "array" ? [] : undefined;
                 break;
               case 1:
-                if (!isCheckboxArray) {
+                if (!isCheckboxArray && schema.type !== "array") {
                   tempValue = tempValue[0];
                 }
                 break;
@@ -571,7 +577,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
                 break;
             }
           } else if (curValue === undefined) {
-            if (isCheckboxArray) {
+            if (schema.type === "array" || isCheckboxArray) {
               tempValue = [value];
             } else {
               tempValue = value === "on" ? true : value;

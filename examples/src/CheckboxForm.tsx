@@ -129,12 +129,12 @@ export const CheckboxForm = () => {
         <fieldset>
           <div className="row">
             <legend className="col-form-label col-sm-2 pt-0">
-              Pick a number
+              Pick a number (Yup.array())
             </legend>
             <div className="col-sm-10">
               <div>
                 <InputField
-                  name="numbersArray[]"
+                  name="numbersArray"
                   type="checkbox"
                   id="numbersArray.1"
                   value={1}
@@ -142,7 +142,7 @@ export const CheckboxForm = () => {
                   {...field}
                 />
                 <InputField
-                  name="numbersArray[]"
+                  name="numbersArray"
                   type="checkbox"
                   id="numbersArray.2"
                   value={2}
@@ -150,7 +150,7 @@ export const CheckboxForm = () => {
                   {...field}
                 />
                 <InputField
-                  name="numbersArray[]"
+                  name="numbersArray"
                   type="checkbox"
                   id="numbersArray.3"
                   value={3}
