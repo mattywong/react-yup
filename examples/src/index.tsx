@@ -13,6 +13,7 @@ import {
 
 import { BasicFormExtended } from "./BasicFormExtended";
 import { BasicForm } from "./BasicForm";
+import { BasicArray } from "./BasicArray";
 import { LoginForm } from "./LoginForm";
 import { NestedForm } from "./NestedForm";
 import { CheckboxForm } from "./CheckboxForm";
@@ -43,6 +44,9 @@ const App = () => {
         <ul className="list-unstyled list-inline">
           <li className="list-inline-item">
             <Link to="/basic">Basic</Link>
+          </li>
+          <li className="list-inline-item">
+            <Link to="/basic-array">Basic Array</Link>
           </li>
           <li className="list-inline-item">
             <Link to="/basic-extended">Basic Extended</Link>
@@ -81,6 +85,11 @@ const App = () => {
         <Route path="/basic">
           <Container>
             <BasicForm />
+          </Container>
+        </Route>
+        <Route path="/basic-array">
+          <Container>
+            <BasicArray />
           </Container>
         </Route>
         <Route path="/basic-extended">

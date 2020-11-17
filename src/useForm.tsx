@@ -395,6 +395,8 @@ export const useForm = <FormValues extends Record<string, unknown>>(
             return resolve(value);
           })
           .catch((error: ValidationError) => {
+            console.log(error);
+
             if (error.name !== "ValidationError") {
               return reject("Unhandled validateField error");
             }
@@ -674,10 +676,20 @@ export const useForm = <FormValues extends Record<string, unknown>>(
                 });
               })
               .catch((err) => {
+                /* 
+                  if reached this block, there is a schema issue with the whole form not matching the schema types,
+                  so Yup.reach the schema and get the type via that, then cast if needed
+                */
+                const schemaType = reach(validationSchema, name);
+
                 dispatch({
                   type: "values/update",
                   payload: (values) => {
-                    set(values, name, value);
+                    if (schemaType.type === "number") {
+                      set(values, name, parseInt(value, 10));
+                    } else {
+                      set(values, name, value);
+                    }
                     return values;
                   },
                 });
@@ -738,7 +750,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
         }
       }
     },
-    [setValues, getValues, validateField]
+    [validationSchema, getValues, setValues, validateField]
   );
 
   const field = React.useMemo(() => {
