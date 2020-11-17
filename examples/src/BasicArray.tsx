@@ -115,7 +115,7 @@ export const BasicArray = () => {
                 className="form-control"
                 id={`${fieldName}.firstName`}
                 name={`${fieldName}.firstName`}
-                value={getValue(`${fieldName}.firstName`) || ""}
+                value={(getValue(`${fieldName}.firstName`) as string) || ""}
                 onChange={field.onChange}
                 onBlur={field.onBlur}
               />
@@ -131,7 +131,7 @@ export const BasicArray = () => {
                 className="form-control"
                 id={`${fieldName}.lastName`}
                 name={`${fieldName}.lastName`}
-                value={getValue(`${fieldName}.lastName`) || ""}
+                value={(getValue(`${fieldName}.lastName`) as string) || ""}
                 {...field}
               />
             </div>
