@@ -12,6 +12,7 @@ import * as Yup from "yup";
 const schema = Yup.object({
   firstName: Yup.string().required().min(2),
   lastName: Yup.string().required().min(1),
+  gender: Yup.number(),
 }).defined();
 
 export const BasicForm = () => {
@@ -47,6 +48,17 @@ export const BasicForm = () => {
 
   return (
     <form onSubmit={handleSubmit}>
+      <pre>
+        {JSON.stringify(
+          {
+            values,
+            errors,
+            touched,
+          },
+          null,
+          2
+        )}
+      </pre>
       <div className="form-group">
         <label htmlFor="firstName">First name</label>
         {errors.firstName && touched.firstName && <p>{errors.firstName}</p>}
@@ -72,6 +84,21 @@ export const BasicForm = () => {
           value={values.lastName || ""}
           {...field}
         />
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="gender">Gender</label>
+        {errors.gender && touched.gender && <p>{errors.gender}</p>}
+        <select
+          className="custom-select"
+          id="gender"
+          name="gender"
+          value={values.gender || ""}
+          {...field}
+        >
+          <option value={1}>Male</option>
+          <option value={2}>Female</option>
+        </select>
       </div>
 
       <button className="btn btn-primary" type="submit">

@@ -659,7 +659,8 @@ export const useForm = <FormValues extends Record<string, unknown>>(
           break;
         }
 
-        case "radio": {
+        case "radio":
+        case "select-one": {
           setValues((dispatch, getValues) => {
             const draft = getValues();
             set(draft, name, value);
@@ -695,9 +696,10 @@ export const useForm = <FormValues extends Record<string, unknown>>(
                 });
               });
           });
+
           break;
         }
-        case "select-one":
+
         case "email":
         case "color":
         case "date":
