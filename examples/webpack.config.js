@@ -16,7 +16,7 @@ const config = {
     extensions: [".js", ".jsx", ".tsx", ".ts"],
   },
   devServer: {
-    https: true,
+    https: false,
     historyApiFallback: {
       index: "/index.html",
     },
