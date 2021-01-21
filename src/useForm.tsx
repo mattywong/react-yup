@@ -665,36 +665,24 @@ export const useForm = <FormValues extends Record<string, unknown>>(
             const draft = getValues();
             set(draft, name, value);
 
-            validateField(name, draft)
-              .then((value) => {
-                console.log(value);
-                dispatch({
-                  type: "values/update",
-                  payload: (values) => {
-                    set(values, name, value);
-                    return values;
-                  },
-                });
-              })
-              .catch((err) => {
-                /* 
-                  if reached this block, there is a schema issue with the whole form not matching the schema types,
-                  so Yup.reach the schema and get the type via that, then cast if needed
-                */
-                const schemaType = reach(validationSchema, name);
+            const schemaType = reach(validationSchema, name);
 
-                dispatch({
-                  type: "values/update",
-                  payload: (values) => {
-                    if (schemaType.type === "number") {
-                      set(values, name, parseInt(value, 10));
-                    } else {
-                      set(values, name, value);
-                    }
-                    return values;
-                  },
-                });
-              });
+            dispatch({
+              type: "values/update",
+              payload: (values) => {
+                if (schemaType.type === "number") {
+                  const v = Number(value);
+                  set(values, name, Number.isNaN(v) ? value : v);
+                } else {
+                  set(values, name, value);
+                }
+                return values;
+              },
+            });
+
+            validateField(name, draft)
+              .then((value) => {})
+              .catch((err) => {});
           });
 
           break;
@@ -728,25 +716,8 @@ export const useForm = <FormValues extends Record<string, unknown>>(
             });
 
             validateField(name, draft)
-              .then((value) => {
-                // console.log(value);
-                // dispatch({
-                //   type: "values/update",
-                //   payload: (values) => {
-                //     set(values, name, value);
-                //     return values;
-                //   },
-                // });
-              })
-              .catch((err) => {
-                // dispatch({
-                //   type: "values/update",
-                //   payload: (values) => {
-                //     set(values, name, value);
-                //     return values;
-                //   },
-                // });
-              });
+              .then((value) => {})
+              .catch((err) => {});
           });
           break;
         }
