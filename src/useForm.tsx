@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ValidationError, Schema, reach } from "yup";
+import { ValidationError, SchemaOf, reach } from "yup";
 
 import { get, set } from "lodash-es";
 
@@ -14,7 +14,7 @@ interface UseFormHookOptions<FormValues extends Record<string, unknown>> {
   defaultValues?: ValueState<FormValues> | (() => ValueState<FormValues>);
   defaultErrors?: ErrorState<FormValues> | (() => ErrorState<FormValues>);
   defaultTouched?: TouchedState<FormValues> | (() => TouchedState<FormValues>);
-  validationSchema?: Schema<FormValues>;
+  validationSchema?: SchemaOf<FormValues>;
   submitFocusError?: boolean;
   focusMapper?: Parameters<typeof focusFirstError>[2];
 }
