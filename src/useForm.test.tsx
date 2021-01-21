@@ -508,6 +508,13 @@ describe("FormBag field works correctly", () => {
         field,
       } = useForm({
         validationSchema: Yup.object({
+          yes: Yup.lazy((v) => {
+            if (Array.isArray(v)) {
+              return Yup.array().of(Yup.string());
+            }
+
+            return Yup.string();
+          }),
           firstName: Yup.string().required(),
         }),
       });
@@ -566,6 +573,7 @@ describe("FormBag field works correctly", () => {
       } = useForm({
         validationSchema: Yup.object({
           firstName: Yup.string().required(),
+          yes: Yup.array().of(Yup.string()),
         }),
       });
 
