@@ -13,6 +13,7 @@ const schema = Yup.object({
   firstName: Yup.string().required().min(2),
   lastName: Yup.string().required().min(1),
   gender: Yup.number(),
+  confirm: Yup.boolean().oneOf([true]).required(),
 }).defined();
 
 export const BasicForm = () => {
@@ -26,6 +27,7 @@ export const BasicForm = () => {
     errors,
     field,
     createSubmitHandler,
+    isChecked,
   } = useForm({
     validationSchema: schema,
   });
@@ -99,6 +101,20 @@ export const BasicForm = () => {
           <option value={1}>Male</option>
           <option value={2}>Female</option>
         </select>
+      </div>
+
+      <div className="form-group">
+        {errors.confirm && touched.confirm && <p>{errors.confirm}</p>}
+        <div className="form-check">
+          <input
+            id="confirm"
+            type="checkbox"
+            checked={isChecked("confirm")}
+            name="confirm"
+            {...field}
+          />
+          <label htmlFor="confirm">Confirm</label>
+        </div>
       </div>
 
       <button className="btn btn-primary" type="submit">

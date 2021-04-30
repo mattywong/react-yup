@@ -597,22 +597,37 @@ export const useForm = <FormValues extends Record<string, unknown>>(
           setValues((dispatch, getValues) => {
             const draft = getValues();
             set(draft, chkboxName, tempValue);
-            const result = validationSchema.validateSyncAt(
-              chkboxName,
-              draft as FormValues
-            );
 
-            dispatch({
-              type: "values/update",
-              payload: (values) => {
-                set(values, chkboxName, result);
-                return values;
-              },
-            });
+            try {
+              const result = validationSchema.validateSyncAt(
+                chkboxName,
+                draft as FormValues
+              );
 
-            validateField(chkboxName, draft)
-              .then((value) => {})
-              .catch((err) => {});
+              dispatch({
+                type: "values/update",
+                payload: (values) => {
+                  set(values, chkboxName, result);
+                  return values;
+                },
+              });
+
+              validateField(chkboxName, draft)
+                .then((value) => {})
+                .catch((err) => {});
+            } catch (error) {
+              dispatch({
+                type: "values/update",
+                payload: (values) => {
+                  set(values, chkboxName, tempValue);
+                  return values;
+                },
+              });
+
+              validateField(chkboxName, draft)
+                .then((value) => {})
+                .catch((err) => {});
+            }
           });
 
           break;
