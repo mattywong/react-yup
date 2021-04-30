@@ -6,11 +6,13 @@ import { useForm } from "../../src";
 
 import { PureField } from "./Field";
 
-const SCHEMA = Yup.object().shape({
-  firstName: Yup.string().min(2).required(),
-  lastName: Yup.string().min(2).required(),
-  age: Yup.number().required(),
-});
+const SCHEMA = Yup.object()
+  .shape({
+    firstName: Yup.string().min(2).required(),
+    lastName: Yup.string().min(2).required(),
+    age: Yup.number().required(),
+  })
+  .defined();
 
 /**
  * <PureField /> will not rerender unless one of it's props changes

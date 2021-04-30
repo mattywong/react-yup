@@ -269,6 +269,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
           return resolve({ values: getValues() as ValueState<FormValues> });
         }
 
+        // @ts-ignore
         validationSchema
           .validate(getValues(), {
             abortEarly: false,
@@ -277,7 +278,10 @@ export const useForm = <FormValues extends Record<string, unknown>>(
             setErrors({
               type: "errors/reset",
             });
+
             resolve({ values: values as ValueState<FormValues> });
+
+            return values;
           })
           .catch((errors: ValidationError) => {
             if (errors.name !== "ValidationError") {

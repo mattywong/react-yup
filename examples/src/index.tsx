@@ -15,11 +15,11 @@ import { BasicFormExtended } from "./BasicFormExtended";
 import { BasicForm } from "./BasicForm";
 import { BasicArray } from "./BasicArray";
 import { LoginForm } from "./LoginForm";
-import { NestedForm } from "./NestedForm";
-import { CheckboxForm } from "./CheckboxForm";
+// import { NestedForm } from "./NestedForm";
+// import { CheckboxForm } from "./CheckboxForm";
 import { AdvancedForm } from "./AdvancedForm";
 import { PureForm } from "./PureForm";
-import { BootstrapTypeahead } from "./BootstrapTypeahead";
+// import { BootstrapTypeahead } from "./BootstrapTypeahead";
 import { TypeaheadArray } from "./TypeaheadArray";
 import { FocusMapper } from "./FocusMapper";
 
@@ -97,7 +97,7 @@ const App = () => {
             <BasicFormExtended />
           </Container>
         </Route>
-        <Route path="/nested">
+        {/* <Route path="/nested">
           <Container>
             <NestedForm
               defaultValues={{
@@ -112,22 +112,22 @@ const App = () => {
               }}
             />
           </Container>
-        </Route>
-        <Route path="/checkbox">
+        </Route> */}
+        {/* <Route path="/checkbox">
           <Container>
             <CheckboxForm />
           </Container>
-        </Route>
+        </Route> */}
         <Route path="/advanced">
           <Container>
             <AdvancedForm />
           </Container>
         </Route>
-        <Route path="/typeahead">
+        {/* <Route path="/typeahead">
           <Container>
             <BootstrapTypeahead />
           </Container>
-        </Route>
+        </Route> */}
         <Route path="/typeahead-array">
           <Container>
             <TypeaheadArray />
