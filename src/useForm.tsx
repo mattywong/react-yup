@@ -754,41 +754,42 @@ export const useForm = <FormValues extends Record<string, unknown>>(
     };
   }, [handleFieldOnBlur, handleFieldOnChange]);
 
-  const createSubmitHandler: CreateSubmitHandler<FormValues> = React.useMemo(() => {
-    if (
-      process.env.NODE_ENV !== "production" &&
-      process.env.NODE_ENV !== "test"
-    ) {
-      track("createSubmitHandler");
-    }
+  const createSubmitHandler: CreateSubmitHandler<FormValues> =
+    React.useMemo(() => {
+      if (
+        process.env.NODE_ENV !== "production" &&
+        process.env.NODE_ENV !== "test"
+      ) {
+        track("createSubmitHandler");
+      }
 
-    return (onSuccess, onError?) => (event) => {
-      event.preventDefault();
+      return (onSuccess, onError?) => (event) => {
+        event.preventDefault();
 
-      const el = event.currentTarget;
-      const form = el.closest("form");
+        const el = event.currentTarget;
+        const form = el.closest("form");
 
-      setSubmitting(true);
+        setSubmitting(true);
 
-      return validateForm().then(({ values, errors, yupErrors }) => {
-        if (errors) {
-          setSubmitting(false);
+        return validateForm().then(({ values, errors, yupErrors }) => {
+          if (errors) {
+            setSubmitting(false);
 
-          if (submitFocusError) {
-            focusFirstError(form, yupErrors, focusMapper);
+            if (submitFocusError) {
+              focusFirstError(form, yupErrors, focusMapper);
+            }
+
+            if (onError) {
+              return onError(errors, getValues(), yupErrors);
+            }
+
+            return;
           }
 
-          if (onError) {
-            return onError(errors, getValues(), yupErrors);
-          }
-
-          return;
-        }
-
-        return onSuccess(values);
-      });
-    };
-  }, [validateForm, submitFocusError, focusMapper, getValues]);
+          return onSuccess(values);
+        });
+      };
+    }, [validateForm, submitFocusError, focusMapper, getValues]);
 
   const formBag = React.useMemo(() => {
     if (
