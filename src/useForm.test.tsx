@@ -134,6 +134,7 @@ describe("useValues", () => {
     );
 
     expect(result.current.getValue("firstName")).toBe("joe");
+    expect(result.current.getValue("firstName[]")).toBe("joe");
     expect(result.current.getValue((v) => v.lastName)).toBe("biggs");
   });
 });

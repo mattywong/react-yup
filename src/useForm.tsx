@@ -134,6 +134,10 @@ const FormBagContext = React.createContext<FormBagContext<unknown> | undefined>(
   undefined
 );
 
+const isNameArray = (name: string) => name.endsWith("[]");
+const getResolvedName = (name: string) =>
+  isNameArray(name) ? name.substr(0, name.length - 2) : name;
+
 export const useForm = <FormValues extends Record<string, unknown>>(
   options?: UseFormHookOptions<FormValues>
 ): UseFormHookResult<FormValues> => {
@@ -170,7 +174,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
         return name(getValues());
       }
 
-      return get(getValues(), name);
+      return get(getValues(), getResolvedName(name));
     }
 
     return getValue;
@@ -186,7 +190,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
         return name(getErrors());
       }
 
-      return get(getErrors(), name as string);
+      return get(getErrors(), getResolvedName(name as string));
     }
 
     return getError;
@@ -199,7 +203,11 @@ export const useForm = <FormValues extends Record<string, unknown>>(
     ): undefined | boolean;
     function isTouched(name: unknown) {
       if (typeof name === "string") {
-        return get(getTouched() as TouchedState<FormValues>, name, false);
+        return get(
+          getTouched() as TouchedState<FormValues>,
+          getResolvedName(name),
+          false
+        );
       }
 
       if (typeof name === "function") {
