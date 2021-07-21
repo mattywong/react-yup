@@ -14,7 +14,7 @@ const SCHEMA = Yup.object({
 
     return Yup.string();
   }),
-  numbersArray: Yup.array().of(Yup.number()).required(),
+  numbersArray: Yup.array().of(Yup.number()).required().max(3),
   confirm: Yup.boolean(),
 }).defined();
 
@@ -155,6 +155,14 @@ export const CheckboxForm = () => {
                   id="numbersArray.3"
                   value={3}
                   label="Three"
+                  {...field}
+                />
+                <InputField
+                  name="numbersArray"
+                  type="checkbox"
+                  id="numbersArray.4"
+                  value={4}
+                  label="Four"
                   {...field}
                 />
               </div>

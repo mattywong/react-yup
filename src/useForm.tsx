@@ -612,14 +612,19 @@ export const useForm = <FormValues extends Record<string, unknown>>(
                 },
               });
 
-              validateField(chkboxName, draft)
-                .then((value) => {})
-                .catch((err) => {});
+              validateField(chkboxName, draft);
             } catch (error) {
+              const isValidationError = error instanceof ValidationError;
+
               dispatch({
                 type: "values/update",
                 payload: (values) => {
-                  set(values, chkboxName, tempValue);
+                  if (isValidationError) {
+                    set(values, chkboxName, error.value || tempValue);
+                  } else {
+                    set(values, chkboxName, tempValue);
+                  }
+
                   return values;
                 },
               });
