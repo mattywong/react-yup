@@ -1,3 +1,6 @@
+# DEPRECATION NOTICE
+This lib was built before yup migrated to typescript (from versions 0.30 onwards). The types from 0.29.x to 0.30.x + have changed somewhat and more than likely this library will not be updated to support versions past 0.29.x (atleast nothing is planned yet, and we have started using Zod instead for new projects). We still use yup 0.29.x in production with this library, but going forward I can't recommend new projects use this.
+
 # react-yup
 
 This is my attempt to solve form validation in React. It takes inspiration from some wonderful existing form libraries notably Formik, React Hook Form, and Final Form, but makes some important decisions that separate the goals of this library with the ones listed.
