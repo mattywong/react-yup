@@ -11,6 +11,7 @@ import {
   Link,
 } from "react-router-dom";
 
+import { AsyncValidation } from "./AsyncValidation";
 import { BasicFormExtended } from "./BasicFormExtended";
 import { BasicForm } from "./BasicForm";
 import { BasicArray } from "./BasicArray";
@@ -68,6 +69,9 @@ const App = () => {
           </li>
           <li className="list-inline-item">
             <Link to="/typeahead-array">Typeahead Array</Link>
+          </li>
+          <li className="list-inline-item">
+            <Link to="/async-validation">Async validation</Link>
           </li>
         </ul>
       </nav>
@@ -136,6 +140,11 @@ const App = () => {
         <Route path="/pure-form">
           <Container>
             <PureForm />
+          </Container>
+        </Route>
+        <Route path="/async-validation">
+          <Container>
+            <AsyncValidation />
           </Container>
         </Route>
         <Route path="/success">

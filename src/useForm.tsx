@@ -63,8 +63,9 @@ type SetTouched<FormValues> = {
   (name: string, value: boolean, shouldValidate?: boolean): void;
 };
 
-interface ValidateFormOptions {
+interface ValidateFormOptions<FormValues extends Record<string, unknown>> {
   touch?: boolean;
+  validationSchema?: Schema<FormValues>;
 }
 
 type ValidateFormResult<FormValues> = Promise<{
@@ -79,7 +80,7 @@ type IsChecked = {
   (name: string, value: any): boolean;
 };
 
-interface FormBagContext<FormValues> {
+interface FormBagContext<FormValues extends Record<string, unknown>> {
   createSubmitHandler: CreateSubmitHandler<FormValues>;
   field: Field;
   getError: {
@@ -111,7 +112,7 @@ interface FormBagContext<FormValues> {
   setValues: SetValues<FormValues>;
   resetErrors: () => void;
   validateForm: (
-    options?: ValidateFormOptions
+    options?: ValidateFormOptions<FormValues>
   ) => ValidateFormResult<FormValues>;
   validateField: (
     name: string,
@@ -120,7 +121,8 @@ interface FormBagContext<FormValues> {
   ) => Promise<unknown>;
 }
 
-interface UseFormHookResult<FormValues> extends FormBagContext<FormValues> {
+interface UseFormHookResult<FormValues extends Record<string, unknown>>
+  extends FormBagContext<FormValues> {
   values: ValueState<FormValues>;
   errors: ErrorState<FormValues>;
   touched: TouchedState<FormValues>;
@@ -130,9 +132,9 @@ interface UseFormHookResult<FormValues> extends FormBagContext<FormValues> {
   FormProvider: ({ children }: { children: React.ReactNode }) => JSX.Element;
 }
 
-const FormBagContext = React.createContext<FormBagContext<unknown> | undefined>(
-  undefined
-);
+const FormBagContext = React.createContext<
+  FormBagContext<Record<string, unknown>> | undefined
+>(undefined);
 
 const isNameArray = (name: string) => name.endsWith("[]");
 const getResolvedName = (name: string) =>
@@ -149,6 +151,9 @@ export const useForm = <FormValues extends Record<string, unknown>>(
     submitFocusError = true,
     focusMapper,
   } = options || {};
+
+  const schemaRef = React.useRef(validationSchema);
+  schemaRef.current = validationSchema;
 
   const { getValues, setValues } = useValues<FormValues>({
     defaultValues,
@@ -263,21 +268,22 @@ export const useForm = <FormValues extends Record<string, unknown>>(
       track("validateForm");
     }
 
-    return (options?: ValidateFormOptions) => {
+    return (options?: ValidateFormOptions<FormValues>) => {
       const { touch = true } = options || {};
+      const schema = options?.validationSchema || schemaRef.current;
       return new Promise<{
         values: ValueState<FormValues>;
         errors?: ErrorState<FormValues>;
         yupErrors?: ValidationError;
       }>((resolve, reject) => {
-        if (!validationSchema) {
+        if (!schema) {
           setErrors({
             type: "errors/reset",
           });
           return resolve({ values: getValues() as ValueState<FormValues> });
         }
 
-        validationSchema
+        schema
           .validate(getValues(), {
             abortEarly: false,
           })
@@ -334,7 +340,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
           });
       });
     };
-  }, [getValues, setErrors, setTouched, getTouched, validationSchema]);
+  }, [getValues, setErrors, setTouched, getTouched]);
 
   const validateField = React.useMemo(() => {
     if (
@@ -360,7 +366,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
           });
         }
 
-        if (!validationSchema) {
+        if (!schemaRef.current) {
           setErrors({
             type: "errors/reset",
           });
@@ -370,7 +376,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
         let draft;
 
         try {
-          draft = validationSchema.cast(values);
+          draft = schemaRef.current.cast(values);
         } catch (error) {
           /* 
             This error block happens on a TypeError.
@@ -388,7 +394,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
           return reject(error);
         }
 
-        validationSchema
+        schemaRef.current
           .validateAt(name, draft, {
             abortEarly: false,
           })
@@ -421,7 +427,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
           });
       });
     };
-  }, [setErrors, setTouched, validateForm, validationSchema]);
+  }, [setErrors, setTouched, validateForm]);
 
   const setValue: SetValue = React.useMemo(() => {
     if (
@@ -553,7 +559,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
           const isCheckboxArray = name.endsWith("[]");
           const chkboxName = isCheckboxArray ? name.slice(0, -2) : name;
 
-          const schema = reach(validationSchema, chkboxName);
+          const schema = reach(schemaRef.current, chkboxName);
           console.log(schema.type);
 
           const curValue: any | any[] = get(getValues(), chkboxName);
@@ -607,7 +613,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
             set(draft, chkboxName, tempValue);
 
             try {
-              const result = validationSchema.validateSyncAt(
+              const result = schemaRef.current.validateSyncAt(
                 chkboxName,
                 draft as FormValues
               );
@@ -687,7 +693,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
             const draft = getValues();
             set(draft, name, value);
 
-            const schemaType = reach(validationSchema, name);
+            const schemaType = reach(schemaRef.current, name);
 
             dispatch({
               type: "values/update",
@@ -745,7 +751,7 @@ export const useForm = <FormValues extends Record<string, unknown>>(
         }
       }
     },
-    [validationSchema, getValues, setValues, validateField]
+    [getValues, setValues, validateField]
   );
 
   const field = React.useMemo(() => {
