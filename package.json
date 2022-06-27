@@ -79,7 +79,7 @@
     "yup": "0.29.3"
   },
   "dependencies": {
-    "lodash-es": "^4.17.15"
+    "lodash-es": "^4.17.21"
   },
   "jest": {
     "transformIgnorePatterns": [
