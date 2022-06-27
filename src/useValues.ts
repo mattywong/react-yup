@@ -45,7 +45,7 @@ export const useValues = <FormValues>({
     {},
     (initialState) => {
       if (typeof defaultValues === "function") {
-        return defaultValues();
+        return defaultValues() || initialState;
       }
 
       return defaultValues || initialState;

@@ -45,7 +45,7 @@ export const useTouched = <FormValues>({
     {},
     (initialState) => {
       if (typeof defaultTouched === "function") {
-        return defaultTouched();
+        return defaultTouched() || initialState;
       }
 
       return defaultTouched || initialState;

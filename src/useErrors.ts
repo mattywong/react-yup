@@ -45,7 +45,7 @@ export const useErrors = <FormValues>({
     {},
     (initialState) => {
       if (typeof defaultErrors === "function") {
-        return defaultErrors();
+        return defaultErrors() || initialState;
       }
 
       return defaultErrors || initialState;
